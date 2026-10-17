@@ -1,0 +1,72 @@
+name: 'nem_market_explainer'
+version: '1.0.0'
+config-version: 2
+
+profile: 'nem_market_explainer'
+
+model-paths: ["models"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+flags:
+  # dbt sends anonymous usage events to dbt Labs by default; keep it local-only.
+  send_anonymous_usage_stats: false
+
+vars:
+  # The first 5-minute trading interval starts here. Trading intervals ending at or before it are 30 minutes.
+  five_minute_settlement_start: '2021-10-01 00:00:00'
+
+  # Battery accounting changes over a transition rather than on one day. Before the first date, every battery
+  # is a pair of units: a GENERATOR for discharge and a LOAD for charge. From it, batteries move one by one to
+  # a single BIDIRECTIONAL unit whose SCADA is negative while charging. The last split LOAD unit reports SCADA
+  # on the second date (its last interval starts at 23:55). Both dates are checked against the data by
+  # tests/assert_battery_transition_dates_match_data.sql.
+  battery_transition_start_date: '2024-07-04'
+  battery_transition_end_date: '2024-12-10'
+
+  # Notable-interval thresholds, set where each distribution stops falling and flattens into a tail
+  # (all regions, pricing-run rows, July 2021 to September 2026, $250 bins; see docs/data_dictionary.md):
+  # rows per dollar of price fall from 8,725 below $250 to 0.37 in the $1,500-1,750 bin, then stay between
+  # 0.1 and 1.1 up to the cap.
+  high_price_threshold: 1500
+  # Negative prices thin from 7,533 rows per dollar in the $0 to -$25 bin to 33 at -$150 to -$175,
+  # then form a flat tail down to the floor.
+  deep_negative_price_threshold: -150
+  # Changes from the previous interval fall from 11,002 rows per dollar below $250 to 0.56 at $1,250-1,500,
+  # then stay flat.
+  price_jump_threshold: 1250
+
+  # Gap between flow and its limit, in MW, below which an interconnector counts as at its limit.
+  # 870,320 rows are within 0.01 MW, only 600 lie between 0.01 and 0.1 MW, and the count rises again above that.
+  interconnector_limit_tolerance_mw: 0.1
+  # Flow beyond its limit by more than this, in MW, is flagged separately. 2,487 rows.
+  interconnector_overshoot_mw: 1
+
+  # A region's net interchange should equal the signed sum of its interconnector flows within the losses on
+  # those links. The data meets that except in 147 VIC1 intervals, off by at most 2.4 MW. A reversed link
+  # would be out by twice its flow, hundreds of MW.
+  net_interchange_tolerance_mw: 5
+
+  fuel_groups: ['black_coal', 'brown_coal', 'gas', 'liquid_fuel', 'hydro', 'wind', 'solar', 'battery',
+                'bioenergy', 'other', 'unknown']
+
+seeds:
+  nem_market_explainer:
+    +schema: reference
+
+models:
+  nem_market_explainer:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts

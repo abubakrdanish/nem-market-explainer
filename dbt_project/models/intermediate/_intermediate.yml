@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: int_units
+    description: >
+      Unit dimension: one row per unit and registration period, with region, station, fuel group, capacity
+      and the unit's role in the output totals. Units with no fuel are kept and flagged. Dual-fuel rule:
+      the fuel with the most registered capacity wins, ties alphabetical (affects BBASEHOS and JACKSGUL only).
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [duid, valid_from]
+    columns:
+      - name: duid
+        description: AEMO dispatchable unit ID.
+        data_tests: [not_null]
+      - name: valid_from
+        description: Start of the registration period.
+        data_tests: [not_null]
+      - name: valid_to
+        description: End of the period, exclusive; 2999-12-31 if open.
+        data_tests: [not_null]
+      - name: region_id
+        description: Region during this period.
+      - name: station_id
+        description: AEMO station ID.
+      - name: participant_id
+        description: Registered participant.
+      - name: dispatch_type
+        description: GENERATOR, LOAD or BIDIRECTIONAL.
+      - name: schedule_type
+        description: SCHEDULED, SEMI-SCHEDULED or NON-SCHEDULED.
+      - name: fuel_source
+        description: AEMO fuel name (CO2E_ENERGY_SOURCE) from the unit's current generating sets, after the dual-fuel rule.
+      - name: fuel_source_count
+        description: Number of distinct fuels among the unit's current generating sets. Above 1 means the dual-fuel rule chose.
+      - name: fuel_group
+        description: >
+          Grouped fuel (see the fuel_groups seed). 'battery' also covers split battery LOAD units; 'unknown'
+          means no fuel. Null only if a fuel name is missing from the seed, which the tests catch.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['black_coal', 'brown_coal', 'gas', 'liquid_fuel', 'hydro', 'wind', 'solar', 'battery', 'bioenergy', 'other', 'unknown']
+      - name: is_fuel_missing
+        description: True when AEMO lists no fuel for the unit (and it is not a split battery LOAD unit).
+        data_tests: [not_null]
+      - name: registered_capacity_mw
+        description: Sum of registered capacity of the unit's current generating sets, MW.
+      - name: output_role
+        description: >
+          generator, bidirectional, battery_charging_load (a LOAD unit at a station with a battery) or
+          other_load. Decides which output column SCADA goes into.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['generator', 'bidirectional', 'battery_charging_load', 'other_load']
+
+  - name: int_unit_output_by_fuel
+    description: >
+      All SCADA summed by region and fuel group per 5-minute interval, using the registration valid at the
+      start of each interval. Table, about 20 million rows, rebuilt in full each run. Excludes rooftop solar.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id, fuel_group]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: region_id
+        description: Region the units were registered in at that interval.
+        data_tests: [not_null]
+      - name: fuel_group
+        description: Grouped fuel.
+      - name: generation_mw
+        description: Positive SCADA from GENERATOR and BIDIRECTIONAL units, MW. Generator auxiliary load (negative SCADA) is left out.
+      - name: battery_charging_mw
+        description: Battery charging as a positive MW figure; split LOAD units before the transition, negative BIDIRECTIONAL SCADA after.
+      - name: other_load_mw
+        description: SCADA of LOAD units that are not battery charging units, mostly pumped hydro pumps, MW.
+      - name: units_reporting
+        description: Units with a SCADA row in the interval.
+
+  - name: int_price_30min
+    description: >
+      30-minute price per region across the October 2021 settlement change. Official 30-minute trading
+      price before it; mean of the six 5-minute trading prices in each half hour after it, which is not a
+      settlement price. Not rescaled. Table.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the half hour, NEM market time.
+      - name: interval_end
+        description: End of the half hour, NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: region_id
+        description: NEM region.
+        data_tests: [not_null]
+      - name: settlement_regime
+        description: 30_minute (official half-hour price) or 5_minute (average of six 5-minute prices).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['30_minute', '5_minute']
+      - name: is_official_settlement_price
+        description: True when price is AEMO's settlement price for the half hour, which is only before 1 October 2021.
+      - name: price
+        description: Price for the half hour, $/MWh.
+        data_tests: [not_null]
+      - name: source_intervals
+        description: Trading prices averaged into the row, 1 before the change and 6 after.

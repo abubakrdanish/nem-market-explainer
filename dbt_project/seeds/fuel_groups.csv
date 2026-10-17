@@ -1,0 +1,20 @@
+fuel_source,fuel_group
+Black coal,black_coal
+Brown coal,brown_coal
+Natural Gas (Pipeline),gas
+Coal seam methane,gas
+Coal Seam Methane,gas
+Coal mine waste gas,gas
+Ethane,gas
+Diesel oil,liquid_fuel
+Kerosene - non aviation,liquid_fuel
+Hydro,hydro
+Wind,wind
+Solar,solar
+Battery Storage,battery
+Landfill biogas methane,bioenergy
+Biomass and industrial materials,bioenergy
+Bagasse,bioenergy
+Other Biofuels,bioenergy
+Primary solid biomass fuels,bioenergy
+Other solid fossil fuels,other

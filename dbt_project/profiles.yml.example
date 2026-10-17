@@ -1,0 +1,12 @@
+nem_market_explainer:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../warehouse/nem.duckdb
+      threads: 4
+    # The committed test fixtures, loaded by tests/fixtures/build_fixture_warehouse.py. Used by CI.
+    fixture:
+      type: duckdb
+      path: "{{ env_var('NEM_FIXTURE_WAREHOUSE', '../warehouse/fixture.duckdb') }}"
+      threads: 4

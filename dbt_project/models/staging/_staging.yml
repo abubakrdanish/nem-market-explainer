@@ -1,0 +1,410 @@
+version: 2
+
+models:
+  - name: stg_aemo__dispatch_price
+    description: >
+      5-minute regional dispatch price, newest snapshot of each month, pricing-run rows only
+      (INTERVENTION = 0). Intervention rows are in stg_aemo__dispatch_price_intervention. Both flags are
+      codes: set means non-zero, never "= 1".
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time (AEST, UTC+10, no daylight saving).
+        data_tests: [not_null]
+      - name: interval_end
+        description: End of the interval (AEMO's SETTLEMENTDATE), NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+        data_tests: [not_null]
+      - name: region_id
+        description: NEM region (NSW1, QLD1, SA1, TAS1, VIC1).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('regions')
+                field: region_id
+      - name: price
+        description: Regional reference price (RRP), $/MWh.
+        data_tests: [not_null]
+      - name: market_suspended_code
+        description: MARKETSUSPENDEDFLAG as published. 0 = not suspended; 1 and 2 both occur during suspensions, and what distinguishes them is unconfirmed.
+      - name: is_market_suspended
+        description: True when market_suspended_code is non-zero.
+        data_tests: [not_null]
+      - name: apc_code
+        description: APCFLAG as published, a bit field whose bits are not decoded.
+      - name: is_apc_set
+        description: True when apc_code is non-zero, meaning an administered price cap applied.
+        data_tests: [not_null]
+      - name: price_status
+        description: AEMO price status; FIRM on every row in the archive.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__dispatch_price_intervention
+    description: >
+      The INTERVENTION = 1 rows of DISPATCHPRICE: a second dispatch run AEMO publishes for an interval
+      when it intervenes. Kept apart so the pricing-run series has one row per interval and region.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: region_id
+        description: NEM region.
+      - name: price
+        description: Price from the intervention run, $/MWh. Not the price the market settled on.
+      - name: market_suspended_code
+        description: MARKETSUSPENDEDFLAG as published.
+      - name: is_market_suspended
+        description: True when market_suspended_code is non-zero.
+      - name: apc_code
+        description: APCFLAG as published.
+      - name: is_apc_set
+        description: True when apc_code is non-zero.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__trading_price
+    description: >
+      Settlement price, newest snapshot of each month. Intervals are 30 minutes up to the one ending
+      2021-10-01 00:00 and 5 minutes after. Rounded by AEMO to the cent, so it can differ from the dispatch
+      price by up to $0.005.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the interval, 30 or 5 minutes before interval_end, NEM market time.
+        data_tests: [not_null]
+      - name: interval_end
+        description: End of the interval (SETTLEMENTDATE), NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: interval_minutes
+        description: Length of the interval, 30 or 5.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [30, 5]
+      - name: settlement_regime
+        description: 30_minute before 5-minute settlement, 5_minute from 1 October 2021.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['30_minute', '5_minute']
+      - name: region_id
+        description: NEM region.
+        data_tests: [not_null]
+      - name: period_id
+        description: AEMO trading period number, counted from midnight, though the NEM trading day starts at 04:00.
+      - name: price
+        description: Settlement price (RRP), $/MWh.
+        data_tests: [not_null]
+      - name: invalid_flag
+        description: AEMO's invalid-price flag; '0' on every row in the archive.
+      - name: price_status
+        description: AEMO price status.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__dispatch_region_sum
+    description: >
+      Regional demand and supply per 5-minute interval, pricing-run rows only (INTERVENTION = 0).
+      Demand is operational demand and excludes rooftop solar.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: region_id
+        description: NEM region.
+        data_tests: [not_null]
+      - name: total_demand_mw
+        description: TOTALDEMAND, operational demand in MW. Rooftop solar lowers it, so it can be negative (SA1, 1,222 intervals).
+        data_tests: [not_null]
+      - name: available_generation_mw
+        description: AVAILABLEGENERATION, generation offered as available in the region, MW.
+      - name: demand_forecast_mw
+        description: DEMANDFORECAST as published; not used in the marts and its exact meaning is not verified.
+      - name: net_interchange_mw
+        description: NETINTERCHANGE, net flow out of the region over interconnectors, MW. Positive means export.
+      - name: intermittent_generation_mw
+        description: TOTALINTERMITTENTGENERATION, output of wind and utility solar, MW.
+      - name: uigf_mw
+        description: UIGF, AEMO's forecast of what intermittent generation could produce, MW.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__dispatch_interconnector
+    description: Interconnector flow, losses and calculated limits per 5-minute interval, pricing-run rows only (INTERVENTION = 0).
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, interconnector_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: interconnector_id
+        description: AEMO interconnector ID.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('interconnectors')
+                field: interconnector_id
+      - name: mw_flow
+        description: MWFLOW, dispatched flow in MW. Positive runs from the first region in the ID to the second.
+      - name: metered_mw_flow
+        description: METEREDMWFLOW, metered flow at the start of the interval, MW.
+      - name: mw_losses
+        description: MWLOSSES, losses on the link, MW.
+      - name: marginal_value
+        description: MARGINALVALUE as published; 0 on every link except Basslink (T-V-MNSP1).
+      - name: export_limit_mw
+        description: EXPORTLIMIT, calculated limit on positive flow from all invoked constraints, MW.
+      - name: import_limit_mw
+        description: IMPORTLIMIT, calculated limit on negative flow, MW (usually negative). Can be above export_limit_mw.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__unit_scada
+    description: >
+      MW output of each unit at the end of each 5-minute interval, newest snapshot of each month. A view
+      over about 251 million rows. Loads (pumps, split battery charging units) report consumption as
+      positive values; bidirectional batteries report charging as negative values.
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: duid
+        description: AEMO dispatchable unit ID.
+      - name: scada_mw
+        description: SCADAVALUE, MW at the end of the interval.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__unit_details
+    description: >
+      Unit registration periods from the newest DUDETAILSUMMARY snapshot. A period runs from valid_from up
+      to, not including, valid_to; 2999-12-31 marks an open period. Units can change region.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [duid, valid_from]
+    columns:
+      - name: duid
+        description: AEMO dispatchable unit ID.
+        data_tests: [not_null]
+      - name: valid_from
+        description: Start of the registration period (START_DATE).
+        data_tests: [not_null]
+      - name: valid_to
+        description: End of the period, exclusive (END_DATE).
+        data_tests: [not_null]
+      - name: dispatch_type
+        description: GENERATOR, LOAD or BIDIRECTIONAL.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['GENERATOR', 'LOAD', 'BIDIRECTIONAL']
+      - name: schedule_type
+        description: SCHEDULED, SEMI-SCHEDULED or NON-SCHEDULED.
+      - name: region_id
+        description: Region the unit was registered in during the period. Includes SNOWY1, removed in 2008.
+      - name: station_id
+        description: AEMO station ID.
+      - name: participant_id
+        description: Registered participant.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__gen_units
+    description: Generating sets with fuel and capacity, newest GENUNITS snapshot.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [genset_id]
+    columns:
+      - name: genset_id
+        description: AEMO generating set ID.
+        data_tests: [not_null]
+      - name: genset_type
+        description: GENERATOR, LOAD or BIDIRECTIONAL.
+      - name: registered_capacity_mw
+        description: Registered capacity, MW.
+      - name: max_capacity_mw
+        description: Maximum capacity, MW.
+      - name: fuel_source
+        description: CO2E_ENERGY_SOURCE as published, for example 'Black coal' or 'Wind'. Empty for about one set in five.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fuel_groups')
+                field: fuel_source
+      - name: emissions_factor
+        description: CO2E_EMISSIONS_FACTOR as published.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__unit_gensets
+    description: Units' generating sets from the newest DUALLOC snapshot, highest version per unit and effective date.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [duid, effective_date, genset_id]
+    columns:
+      - name: duid
+        description: AEMO dispatchable unit ID.
+      - name: genset_id
+        description: Generating set in the unit.
+      - name: effective_date
+        description: Date the mapping took effect.
+      - name: version_no
+        description: AEMO version of the mapping for that date.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_aemo__market_price_thresholds
+    description: Market price cap and floor, each valid from its effective date until the next.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [valid_from]
+    columns:
+      - name: valid_from
+        description: Effective date.
+        data_tests: [not_null]
+      - name: valid_to
+        description: Next effective date, exclusive; 2999-12-31 for the newest.
+      - name: market_price_cap
+        description: Market price cap (VOLL), $/MWh.
+        data_tests: [not_null]
+      - name: market_price_floor
+        description: Market price floor, $/MWh.
+        data_tests: [not_null]
+      - name: version_no
+        description: AEMO version for the effective date.
+      - name: last_changed
+        description: When AEMO last changed the row.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_events
+    description: Events calendar from data/events.csv, newest snapshot.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [event_date, title]
+    columns:
+      - name: event_date
+        description: Date of the event.
+        data_tests: [not_null]
+      - name: time_sydney
+        description: Time in Sydney local time, HH:MM, where known.
+      - name: event_type
+        description: nem_market, generator_closure, rba_decision or abs_release.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['nem_market', 'generator_closure', 'rba_decision', 'abs_release']
+      - name: title
+        description: Short description of the event.
+      - name: source_url
+        description: Page the event came from.
+      - name: verified_on
+        description: Date someone checked event_date against source_url; empty if unchecked.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_rba__f1
+    description: RBA table F1 (money market rates), newest download. Not used by the marts yet.
+    columns: &rba_columns
+      - name: series_id
+        description: RBA series ID, for example FIRMMCRTD for the cash rate target.
+      - name: title
+        description: Series title.
+      - name: units
+        description: Units of the series.
+      - name: obs_date
+        description: Observation date.
+      - name: value
+        description: Value as published, text.
+      - name: value_number
+        description: value as a number; null where the text is not a number.
+      - name: _source_file
+        description: Raw file the row came from.
+      - name: _loaded_at
+        description: When the row was loaded into raw.
+
+  - name: stg_rba__f11
+    description: RBA table F11 (exchange rates), newest download of each of its three files. Not used by the marts yet.
+    columns: *rba_columns
+
+  - name: stg_rba__a2
+    description: RBA table A2 (monetary policy changes), newest download. Not used by the marts yet.
+    columns: *rba_columns

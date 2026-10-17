@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Tables loaded by the Python ingestion (python -m ingestion.run). Every downloaded file is kept as a
+      snapshot, tagged with _source_file and _loaded_at, and the models only read from it. AEMO timestamps
+      are naive NEM market time (AEST, UTC+10 all year) and mark the end of each interval.
+      See docs/data_sources.md.
+    schema: raw
+    tables:
+      - name: aemo_dispatchprice
+        description: DISPATCHPRICE, 5-minute regional dispatch price with intervention, suspension and APC flags.
+      - name: aemo_tradingprice
+        description: TRADINGPRICE, settlement price; 30-minute until the interval ending 2021-10-01 00:00, 5-minute after.
+      - name: aemo_dispatchregionsum
+        description: DISPATCHREGIONSUM, regional demand, available generation and net interchange.
+      - name: aemo_dispatchinterconnectorres
+        description: DISPATCHINTERCONNECTORRES, interconnector flow, losses and calculated limits.
+      - name: aemo_dispatch_unit_scada
+        description: DISPATCH_UNIT_SCADA, MW output of each unit at the end of each interval. About 251 million rows.
+      - name: aemo_dudetailsummary
+        description: DUDETAILSUMMARY, standing table of unit registration periods (region, station, dispatch type).
+      - name: aemo_genunits
+        description: GENUNITS, standing table of generating sets with fuel and capacity.
+      - name: aemo_dualloc
+        description: DUALLOC, standing table linking units (DUID) to generating sets.
+      - name: aemo_market_price_thresholds
+        description: MARKET_PRICE_THRESHOLDS, standing table of the market price cap (VOLL) and floor.
+      - name: events
+        description: Snapshots of the hand-edited data/events.csv.
+      - name: rba_f1
+        description: RBA table F1, money market interest rates.
+      - name: rba_f11
+        description: RBA table F11, exchange rates, saved as three files covering different years.
+      - name: rba_a2
+        description: RBA table A2, changes in monetary policy and administered rates.

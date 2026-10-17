@@ -1,0 +1,328 @@
+version: 2
+
+models:
+  - name: mart_region_interval
+    description: >
+      One row per region and 5-minute dispatch interval, July 2021 onward: dispatch price (pricing run),
+      demand and supply, suspension and APC flags, the price cap and floor in force, and generation by fuel
+      group from SCADA. Demand is operational demand and generation excludes rooftop solar, so solar's share
+      of supply is understated. Battery charging is not comparable across the battery transition; see
+      battery_accounting.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time (AEST, UTC+10, no daylight saving).
+        data_tests: [not_null]
+      - name: interval_end
+        description: End of the interval (AEMO's SETTLEMENTDATE), NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+        data_tests: [not_null]
+      - name: region_id
+        description: NEM region.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('regions')
+                field: region_id
+      - name: price
+        description: Dispatch price (RRP) from the pricing run, $/MWh.
+        data_tests: [not_null]
+      - name: market_suspended_code
+        description: MARKETSUSPENDEDFLAG as published; 1 and 2 both mean suspended.
+      - name: is_market_suspended
+        description: True when market_suspended_code is non-zero.
+        data_tests: [not_null]
+      - name: apc_code
+        description: APCFLAG as published, a bit field.
+      - name: is_apc_set
+        description: True when apc_code is non-zero.
+        data_tests: [not_null]
+      - name: has_intervention_run
+        description: True when AEMO also published an intervention run (INTERVENTION = 1) for the interval and region.
+        data_tests: [not_null]
+      - name: market_price_cap
+        description: Market price cap in force at interval_start, $/MWh.
+        data_tests: [not_null]
+      - name: market_price_floor
+        description: Market price floor in force at interval_start, $/MWh.
+        data_tests: [not_null]
+      - name: settlement_regime
+        description: 30_minute before 1 October 2021, when the market settled on 30-minute prices; 5_minute after. The dispatch price itself is 5-minute throughout.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['30_minute', '5_minute']
+      - name: total_demand_mw
+        description: Operational demand, MW. Excludes rooftop solar and can be negative in SA1.
+      - name: available_generation_mw
+        description: Generation offered as available in the region, MW.
+      - name: net_interchange_mw
+        description: Net flow out of the region over interconnectors, MW; positive means export.
+      - name: intermittent_generation_mw
+        description: AEMO's total wind and utility solar output for the region, MW.
+      - name: black_coal_generation_mw
+        description: Generation from black coal units, MW. 0 when the region has SCADA but no such unit ran; null when the region has no SCADA for the interval.
+      - name: brown_coal_generation_mw
+        description: Generation from brown coal units, MW.
+      - name: gas_generation_mw
+        description: Generation from gas units (pipeline gas, coal seam methane, coal mine waste gas, ethane), MW.
+      - name: liquid_fuel_generation_mw
+        description: Generation from diesel and kerosene units, MW.
+      - name: hydro_generation_mw
+        description: Generation from hydro units, MW. Pump consumption is in other_load_mw.
+      - name: wind_generation_mw
+        description: Generation from wind farms, MW.
+      - name: solar_generation_mw
+        description: Generation from utility-scale solar farms, MW. Rooftop solar is not included.
+      - name: battery_generation_mw
+        description: Battery discharge, MW.
+      - name: bioenergy_generation_mw
+        description: Generation from landfill gas, biomass, bagasse and other biofuels, MW.
+      - name: other_generation_mw
+        description: Generation from other solid fossil fuels, MW.
+      - name: unknown_generation_mw
+        description: Generation from units AEMO lists with no fuel, MW. Kept, not dropped.
+      - name: total_generation_mw
+        description: Sum of all generation columns, MW, from SCADA. Excludes rooftop solar and generator auxiliary load.
+      - name: battery_charging_mw
+        description: Battery charging, MW, as a positive number. See battery_accounting before comparing over time.
+      - name: other_load_mw
+        description: Consumption by other LOAD units, mostly pumped hydro pumps, MW.
+      - name: units_reporting
+        description: Units with a SCADA row in the interval.
+      - name: has_scada
+        description: False when the region has no SCADA rows for the interval (14 SA1 intervals between September 2024 and March 2025). Generation columns are then null.
+        data_tests: [not_null]
+      - name: battery_accounting
+        description: >
+          Series break for battery charging. split_units before 2024-07-04: every battery is a GENERATOR plus
+          a LOAD unit. transition from 2024-07-04 to 2024-12-10: batteries move one by one to single
+          BIDIRECTIONAL units. bidirectional_units from 2024-12-11. Compare battery_charging_mw only within
+          one value.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['split_units', 'transition', 'bidirectional_units']
+
+  - name: mart_region_daily
+    description: >
+      One row per region and market date (calendar day of interval_start, AEST). Not the NEM trading day,
+      which starts at 04:00. Prices are 5-minute dispatch prices throughout. Fuel shares are of SCADA
+      generation, which excludes rooftop solar.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [market_date, region_id]
+    columns:
+      - name: market_date
+        description: Calendar date in NEM market time.
+        data_tests: [not_null]
+      - name: region_id
+        description: NEM region.
+        data_tests: [not_null]
+      - name: intervals
+        description: 5-minute intervals in the day; 288 for a complete day.
+      - name: avg_price
+        description: Mean of the day's 5-minute dispatch prices, $/MWh. Not demand-weighted.
+      - name: max_price
+        description: Highest 5-minute dispatch price, $/MWh.
+      - name: min_price
+        description: Lowest 5-minute dispatch price, $/MWh.
+      - name: peak_demand_mw
+        description: Highest operational demand in the day, MW.
+      - name: min_demand_mw
+        description: Lowest operational demand in the day, MW.
+      - name: negative_price_intervals
+        description: Intervals with a price below $0.
+      - name: high_price_intervals
+        description: Intervals with a price at or above the high_price_threshold var ($1,500/MWh).
+      - name: total_generation_mwh
+        description: SCADA generation over the day, MWh.
+      - name: black_coal_share
+        description: Black coal share of total_generation_mwh, 0 to 1. Null when there was no generation.
+        data_tests: &share_range
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: brown_coal_share
+        description: Brown coal share of total_generation_mwh.
+        data_tests: *share_range
+      - name: gas_share
+        description: Gas share of total_generation_mwh.
+        data_tests: *share_range
+      - name: liquid_fuel_share
+        description: Diesel and kerosene share of total_generation_mwh.
+        data_tests: *share_range
+      - name: hydro_share
+        description: Hydro share of total_generation_mwh.
+        data_tests: *share_range
+      - name: wind_share
+        description: Wind share of total_generation_mwh.
+        data_tests: *share_range
+      - name: solar_share
+        description: Utility-scale solar share of total_generation_mwh. Understated as a share of supply, because rooftop solar is not in SCADA.
+        data_tests: *share_range
+      - name: battery_share
+        description: Battery discharge share of total_generation_mwh.
+        data_tests: *share_range
+      - name: bioenergy_share
+        description: Bioenergy share of total_generation_mwh.
+        data_tests: *share_range
+      - name: other_share
+        description: Other solid fossil fuel share of total_generation_mwh.
+        data_tests: *share_range
+      - name: unknown_share
+        description: Share from units with no fuel listed.
+        data_tests: *share_range
+      - name: battery_charging_mwh
+        description: Battery charging over the day, MWh. Compare only within one battery_accounting value.
+      - name: touched_suspension
+        description: True when any interval in the day had MARKETSUSPENDEDFLAG non-zero.
+        data_tests: [not_null]
+      - name: touched_apc
+        description: True when any interval in the day had APCFLAG non-zero.
+        data_tests: [not_null]
+      - name: had_intervention_run
+        description: True when AEMO published an intervention run for any interval in the day.
+      - name: intervals_without_scada
+        description: Intervals in the day with no SCADA for the region.
+      - name: settlement_regime
+        description: 30_minute before 1 October 2021, 5_minute from it.
+      - name: battery_accounting
+        description: split_units, transition or bidirectional_units; see mart_region_interval.
+
+  - name: mart_notable_intervals
+    description: >
+      Intervals that stand out, one row per region, interval and rule. Rules: high_price (at or above
+      $1,500), deep_negative_price (below -$150), price_jump (change of $1,250 or more from the interval
+      before), at_price_cap, at_price_floor, market_suspended, apc_set. Thresholds come from the price
+      distribution; see dbt_project.yml.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, region_id, rule]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: region_id
+        description: NEM region.
+        data_tests: [not_null]
+      - name: rule
+        description: The rule that flagged the interval.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['high_price', 'deep_negative_price', 'price_jump', 'at_price_cap', 'at_price_floor', 'market_suspended', 'apc_set']
+      - name: rule_description
+        description: The rule in words.
+      - name: rule_value
+        description: The value the rule tested; price, change in price, or flag code.
+      - name: rule_threshold
+        description: The threshold the value was compared with; cap or floor in force for those rules, 0 for flags.
+      - name: price
+        description: Dispatch price in the interval, $/MWh.
+      - name: previous_price
+        description: Dispatch price in the region's previous interval, $/MWh.
+      - name: market_suspended_code
+        description: MARKETSUSPENDEDFLAG as published.
+      - name: apc_code
+        description: APCFLAG as published.
+
+  - name: mart_interconnector_interval
+    description: >
+      One row per interconnector and 5-minute interval: flow against AEMO's calculated limits, which
+      include every invoked constraint. is_binding means flow sat at a limit, so some constraint involving
+      the link bound; it does not say which.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [interval_end, interconnector_id]
+    columns:
+      - name: interval_start
+        description: Start of the 5-minute interval, NEM market time.
+      - name: interval_end
+        description: End of the interval, NEM market time.
+        data_tests: [not_null]
+      - name: market_date
+        description: Calendar date of interval_start in NEM market time.
+      - name: interconnector_id
+        description: AEMO interconnector ID.
+        data_tests: [not_null]
+      - name: interconnector_name
+        description: Common name of the link.
+        data_tests: [not_null]
+      - name: from_region_id
+        description: Region that positive flow leaves.
+      - name: to_region_id
+        description: Region that positive flow enters.
+      - name: exporting_region_id
+        description: Region the flow actually left in this interval.
+      - name: importing_region_id
+        description: Region the flow actually entered in this interval.
+      - name: mw_flow
+        description: Dispatched flow, MW; positive from from_region_id to to_region_id.
+      - name: metered_mw_flow
+        description: Metered flow at the start of the interval, MW.
+      - name: mw_losses
+        description: Losses on the link, MW.
+      - name: export_limit_mw
+        description: Calculated limit on positive flow, MW.
+      - name: import_limit_mw
+        description: Calculated limit on negative flow, MW.
+      - name: headroom_mw
+        description: Distance from flow to the limit in its direction, MW. Negative when flow is beyond the limit.
+      - name: limits_crossed
+        description: True when export_limit_mw is below import_limit_mw (95,757 rows); flow is then pinned at one of them.
+        data_tests: [not_null]
+      - name: is_binding
+        description: True when limits are crossed or headroom_mw is under the interconnector_limit_tolerance_mw var (0.1 MW).
+        data_tests: [not_null]
+      - name: is_flow_beyond_limit
+        description: True when flow exceeds its limit by more than the interconnector_overshoot_mw var (1 MW).
+      - name: marginal_value
+        description: MARGINALVALUE as published; only meaningful for Basslink.
+
+  - name: mart_events
+    description: >
+      Events from data/events.csv, one row per event and region it applies to, joinable to the other marts
+      on market_date and region_id. Events in the event_regions seed apply to one region; all others apply
+      to all five.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [market_date, region_id, title]
+    columns:
+      - name: market_date
+        description: Date of the event.
+        data_tests: [not_null]
+      - name: region_id
+        description: Region the event applies to.
+        data_tests: [not_null]
+      - name: event_type
+        description: nem_market, generator_closure, rba_decision or abs_release.
+      - name: title
+        description: Short description of the event.
+      - name: time_sydney
+        description: Sydney local time of the event, where known. An hour ahead of market time during daylight saving.
+      - name: source_url
+        description: Page the event came from.
+      - name: verified_on
+        description: Date event_date was checked against source_url.
+      - name: scope
+        description: region (one region, from the event_regions seed) or all_regions.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['region', 'all_regions']

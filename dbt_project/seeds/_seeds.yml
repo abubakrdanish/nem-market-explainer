@@ -1,0 +1,63 @@
+version: 2
+
+seeds:
+  - name: fuel_groups
+    description: >
+      Maps each AEMO fuel name (GENUNITS CO2E_ENERGY_SOURCE) to a fuel group. AEMO spells some names two
+      ways, so both spellings are listed. A name missing here fails the relationships test on
+      stg_aemo__gen_units.fuel_source.
+    columns:
+      - name: fuel_source
+        description: Fuel name exactly as AEMO publishes it.
+        data_tests: [not_null, unique]
+      - name: fuel_group
+        description: One of the groups in the fuel_groups var.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['black_coal', 'brown_coal', 'gas', 'liquid_fuel', 'hydro', 'wind', 'solar', 'battery', 'bioenergy', 'other']
+
+  - name: interconnectors
+    description: >
+      The six NEM interconnectors with their common names and flow direction. Positive MWFLOW runs from
+      from_region_id to to_region_id, checked against regional net interchange.
+    columns:
+      - name: interconnector_id
+        description: AEMO interconnector ID.
+        data_tests: [not_null, unique]
+      - name: interconnector_name
+        description: Common name.
+      - name: from_region_id
+        description: Region that positive flow leaves.
+      - name: to_region_id
+        description: Region that positive flow enters.
+
+  - name: regions
+    description: The five NEM regions.
+    columns:
+      - name: region_id
+        description: AEMO region ID.
+        data_tests: [not_null, unique]
+      - name: region_name
+        description: State name.
+
+  - name: event_regions
+    description: >
+      Events in data/events.csv that apply to one region. Keyed on event_date and title; every other event
+      applies to all regions.
+    config:
+      column_types:
+        event_date: date
+    columns:
+      - name: event_date
+        description: Date of the event, as in events.csv.
+      - name: title
+        description: Title of the event, exactly as in events.csv.
+      - name: region_id
+        description: Region the event applies to.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('regions')
+                field: region_id
