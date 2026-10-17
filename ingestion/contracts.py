@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 PRICE_COLUMNS = ["ticker", "date", "open", "high", "low", "close", "adj_close", "volume"]
-EVENT_COLUMNS = ["event_date", "time_sydney", "event_type", "title", "source_url"]
+EVENT_COLUMNS = ["event_date", "time_sydney", "event_type", "title", "source_url", "verified_on"]
 MAX_REPORTED = 5
 
 
@@ -15,9 +15,12 @@ class ContractError(ValueError):
     pass
 
 
-def _read(path: Path, columns: list[str]) -> pd.DataFrame:
+def _read(path: Path, columns: list[str], optional: tuple[str, ...] = ()) -> pd.DataFrame:
     frame = pd.read_csv(path, dtype=str, keep_default_na=False)
     frame.columns = [c.strip().lower() for c in frame.columns]
+    for column in optional:
+        if column not in frame.columns:
+            frame[column] = ""
     missing = [c for c in columns if c not in frame.columns]
     extra = [c for c in frame.columns if c not in columns]
     if missing or extra:
@@ -67,8 +70,13 @@ def parse_prices(path: Path) -> pd.DataFrame:
 
 
 def parse_events(path: Path) -> pd.DataFrame:
-    frame = _read(path, EVENT_COLUMNS)
+    """verified_on is the date someone checked event_date against source_url; empty means unchecked."""
+    # Raw snapshots saved before 2026-10-17 have no verified_on column.
+    frame = _read(path, EVENT_COLUMNS, optional=("verified_on",))
     frame["event_date"] = _dates(path, frame, "event_date")
+    verified = pd.to_datetime(frame["verified_on"], format="%Y-%m-%d", errors="coerce")
+    _raise_if_bad(path, frame, verified.isna() & (frame["verified_on"] != ""), "verified_on is not YYYY-MM-DD")
+    frame["verified_on"] = [d.date() if pd.notna(d) else None for d in verified]
     bad_time = (frame["time_sydney"] != "") & ~frame["time_sydney"].str.fullmatch(r"\d\d:\d\d")
     _raise_if_bad(path, frame, bad_time, "time_sydney is not HH:MM")
     _raise_if_bad(path, frame, ~frame["event_type"].str.fullmatch(r"[a-z_]+"),

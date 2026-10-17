@@ -113,8 +113,10 @@ def check_freshness(con: duckdb.DuckDBPyConnection, today: date, max_age: int) -
         status = "warn" if age > max_age else "pass"
         prices = Check("freshness_prices", status,
                        f"newest price {newest}, {age} sessions and {(today - newest).days} days old")
-    rba = ", ".join(f"{t} {con.execute(f'select max(obs_date) from raw.{t}').fetchone()[0]}" for t in RBA_TABLES)
-    return [prices, Check("freshness_rba", "pass", f"newest observations: {rba}")]
+    newest_rba = {t: con.execute(f"select max(obs_date) from raw.{t}").fetchone()[0] for t in RBA_TABLES}
+    status = "fail" if None in newest_rba.values() else "pass"
+    detail = ", ".join(f"{t} {d}" for t, d in newest_rba.items())
+    return [prices, Check("freshness_rba", status, f"newest observations: {detail}")]
 
 
 def run_checks(con: duckdb.DuckDBPyConnection, expected: dict[str, list[str]], today: date,

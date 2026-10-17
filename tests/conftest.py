@@ -14,8 +14,8 @@ EVENTS_FILE = Path(__file__).parent.parent / "data" / "events.csv"
 
 # Fixture file -> where the pipeline would have saved it under data/raw.
 RAW_LAYOUT = {
-    "rba_f11_hist_sample.xls": "rba/rba_f11_2014_2017_20261017.xls",
-    "rba_f11_1_sample.csv": "rba/rba_f11_1_2023_current_20261017.csv",
+    "synthetic_rba_f11_hist.xls": "rba/rba_f11_2014_2017_20261017.xls",
+    "synthetic_rba_f11_1.csv": "rba/rba_f11_1_2023_current_20261017.csv",
     "rba_f1_sample.csv": "rba/rba_f1_20261017.csv",
     "rba_a2_sample.csv": "rba/rba_a2_20261017.csv",
 }

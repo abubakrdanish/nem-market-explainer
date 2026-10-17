@@ -14,7 +14,8 @@ RAW_TABLES = {
     "rba_f11": RBA_COLUMNS,
     "rba_f1": RBA_COLUMNS,
     "rba_a2": RBA_COLUMNS,
-    "events": f"event_date date, time_sydney varchar, event_type varchar, title varchar, source_url varchar, {LINEAGE}",
+    "events": (f"event_date date, time_sydney varchar, event_type varchar, title varchar, source_url varchar, "
+               f"verified_on date, {LINEAGE}"),
     "asx_sessions": "session_date date, close_time_sydney varchar, _source varchar, _loaded_at timestamptz",
 }
 
@@ -24,6 +25,8 @@ def init(con: duckdb.DuckDBPyConnection) -> None:
         con.execute(f"create schema if not exists {schema}")
     for table, columns in RAW_TABLES.items():
         con.execute(f"create table if not exists raw.{table} ({columns})")
+    # Warehouses created before verified_on was added to events.csv.
+    con.execute("alter table raw.events add column if not exists verified_on date")
 
 
 def connect(path=WAREHOUSE_PATH) -> duckdb.DuckDBPyConnection:

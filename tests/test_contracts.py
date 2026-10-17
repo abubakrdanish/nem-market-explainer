@@ -54,3 +54,23 @@ def test_committed_events_file_meets_the_contract():
 
 def test_inbox_stem_is_safe_for_file_names():
     assert inbox_stem(FIXTURES / "BHP prices (2016-2026).csv") == "bhp_prices_2016_2026"
+
+
+def test_events_say_which_dates_were_checked():
+    frame = parse_events(EVENTS_FILE)
+    unchecked = frame[frame.verified_on.isna()]
+    assert len(unchecked) == 15 and (unchecked.event_type == "abs_release").all()
+
+
+def test_events_saved_before_verified_on_existed_still_parse(tmp_path):
+    path = tmp_path / "events.csv"
+    path.write_text("event_date,time_sydney,event_type,title,source_url\n2026-09-29,14:30,rba_decision,RBA decision,\n")
+    assert parse_events(path).verified_on.tolist() == [None]
+
+
+def test_a_bad_verified_on_is_rejected(tmp_path):
+    path = tmp_path / "events.csv"
+    path.write_text("event_date,time_sydney,event_type,title,source_url,verified_on\n"
+                    "2026-09-29,14:30,rba_decision,RBA decision,,17/10/2026\n")
+    with pytest.raises(ContractError, match="verified_on is not YYYY-MM-DD"):
+        parse_events(path)

@@ -28,6 +28,7 @@ stocks:
   - {ticker: CPU, name: Computershare, sector: Industrials}
   - {ticker: REA, name: REA Group, sector: Communication Services}
   - {ticker: TLS, name: Telstra, sector: Communication Services}
+  # Code changed from WPL on 25 May 2022 (ASX notice 0554.22.05).
   - {ticker: WDS, name: Woodside Energy, sector: Energy, former_tickers: [WPL]}
   - {ticker: STO, name: Santos, sector: Energy}
   - {ticker: ORG, name: Origin Energy, sector: Utilities}

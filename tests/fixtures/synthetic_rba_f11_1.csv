@@ -4,14 +4,14 @@ Description,AUD/USD Exchange Rate; see notes for further detail.,Australian Doll
 Frequency,Daily,Daily
 Type,Indicative,Indicative
 Units,USD,Index
-
-
-Source,WM/Reuters,RBA
+,,
+,,
+Source,SYNTHETIC TEST DATA,SYNTHETIC TEST DATA
 Publication date,16-Oct-2026,16-Oct-2026
 Series ID,FXRUSD,FXRTWI
-01-Oct-2026,0.6900,64.10
-02-Oct-2026,0.6912,
-05-Oct-2026,0.6925,64.30
-
-
-
+01-Oct-2026,0.1111,11.11
+02-Oct-2026,0.2222,
+05-Oct-2026,0.3333,33.33
+,,
+,,
+,,
