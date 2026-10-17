@@ -1,28 +1,32 @@
-# ASX Market Explainer
+# NEM Market Explainer
 
-What moved the Australian share market on a given day, and what else happened that day?
+Why did the wholesale electricity price move in a given region and interval?
 
-This project collects the data needed to answer that: the S&P/ASX 200 index and 30 large ASX stocks, the RBA cash rate, the Australian dollar, and a calendar of RBA decisions and ABS releases. Raw files are saved unchanged and loaded into DuckDB. Later stages will model the data with dbt and add an explainer that answers only from the data.
+This project collects the data needed to answer that from the National Electricity Market (NEM): 5-minute prices, demand, interconnector flows and the output of every generating unit, plus unit registration and fuel types, the RBA cash rate and exchange rate, and a calendar of market events. Raw files are saved unchanged and loaded into DuckDB. Later stages will model the data with dbt and add an explainer that answers only from the data.
 
-> Personal portfolio project. It describes what happened in past data and is not financial advice. Nothing here recommends buying or selling anything.
+> Personal portfolio project. It describes what happened in past data. It is not energy market advice or financial advice.
 
 ## Status
 
-Day 1 is done: sources, ingestion, the raw layer and tests. dbt models and the explainer are not built yet.
+Step 2 is done: AEMO ingestion, the raw layer and tests. dbt models and the explainer are not built yet.
 
 ## Data
 
-| Data | Source | How it arrives |
+| Data | Source | Window |
 |---|---|---|
-| S&P/ASX 200 and 30 stocks, daily | you, as CSV files in `data/inbox/` | by hand, see below |
-| Cash rate target and decisions | RBA tables F1 and A2 | downloaded |
-| AUD/USD and trade-weighted index | RBA table F11 | downloaded |
-| ASX trading days | `exchange_calendars` (XASX) | library |
-| RBA meetings, ABS releases | `data/events.csv` | edited by hand |
+| Dispatch and trading prices, regional demand, interconnectors | AEMO monthly archive (MMSDM) | July 2021 to the newest published month |
+| Unit output (SCADA), unit registration, fuel types, price cap and floor | AEMO monthly archive (MMSDM) | same |
+| Cash rate target and decisions | RBA tables F1 and A2 | from 1990 |
+| AUD/USD and trade-weighted index | RBA table F11 | from 2014 |
+| Market events, generator closures, RBA meetings, ABS releases | `data/events.csv`, edited by hand | 2021 to 2027 |
 
-[docs/data_sources.md](docs/data_sources.md) covers each source's terms, attribution and known quirks, and why prices are not downloaded.
+[docs/data_sources.md](docs/data_sources.md) covers each source's terms, table layout and known quirks. [docs/data_dictionary.md](docs/data_dictionary.md) explains columns that are easy to misread, such as the price suspension flags.
 
-Source: RBA 2026. Source: Australian Bureau of Statistics. The RBA does not endorse this project.
+### AEMO licence
+
+AEMO gives general permission to use "AEMO Material for any purpose, but only with accurate and appropriate attribution". Its definition of AEMO Material names documents, reports and sound and video recordings. It does not say whether market data files are covered. This project treats the data as licensed for personal, non-commercial use with attribution, and redistributes none of it: raw files and the warehouse are gitignored, and the test fixtures use made-up values.
+
+Contains data from the Australian Energy Market Operator (AEMO), nemweb.com.au. AEMO is the author of the data and has not reviewed or endorsed this project. Source: RBA 2026. Source: Australian Bureau of Statistics. The RBA does not endorse this project.
 
 ## Run it
 
@@ -34,43 +38,32 @@ source .venv/bin/activate
 pip install -r requirements.lock
 pip install -e . --no-deps
 
-python -m ingestion.init_duckdb   # creates warehouse/asx.duckdb with schemas raw, staging, marts
-python -m ingestion.run           # downloads RBA tables, imports inbox and events, loads raw
+python -m ingestion.init_duckdb   # creates warehouse/nem.duckdb with schemas raw, staging, marts
+python -m ingestion.run           # downloads RBA tables and the AEMO archive, imports events, loads raw
 python -m ingestion.quality       # data quality checks and freshness; exits 1 on a failure
 python -m pytest                  # offline tests
 ```
 
-`python -m ingestion.run --offline` skips downloads and loads what is already on disk. Running it again adds nothing: unchanged downloads are not saved again, and files already loaded are skipped.
-
-To try it without real prices, copy the made-up sample into the inbox:
-
-```
-cp tests/fixtures/FAKE_synthetic_prices.csv data/inbox/
-```
-
-### Adding prices
-
-Save one or more CSV files in `data/inbox/` with the columns `ticker,date,open,high,low,close,adj_close,volume`. The column contract is in [docs/data_sources.md](docs/data_sources.md#asx-prices-supplied-by-hand). Use files from a provider whose terms allow your use. The inbox, raw files and warehouse are gitignored and must not be committed.
-
-To add a ticker, add a line to `config/tickers.yml`.
+The first run downloads about 2 GB from NEMWEB, one file every few seconds, and takes about half an hour. Later runs fetch only months not yet saved. `python -m ingestion.run --offline` skips downloads and loads what is already on disk. Running either again adds nothing.
 
 ## Layout
 
 ```
-config/       tickers and source settings
-data/         events.csv (committed); inbox/ and raw/ (gitignored)
-docs/         data sources and terms
+config/       source settings and the AEMO window
+data/         events.csv (committed); raw/ (gitignored)
+docs/         data sources, terms and data dictionary
 ingestion/    download, raw files, loading, quality checks
-tests/        offline tests and small fixtures
+tests/        offline tests and small synthetic fixtures
 warehouse/    DuckDB file (gitignored)
 ```
 
 ## How loading works
 
-- Each download or inbox file is saved under `data/raw/` as `<dataset>_<YYYYMMDD>.<ext>`. A file is skipped if its bytes match an earlier one.
-- Each raw file is loaded into its `raw.*` table in one transaction, tagged with `_source_file` and `_loaded_at`. A file name already in the table is not loaded again.
+- Each download is saved under `data/raw/` unchanged. RBA files are date-stamped and skipped if their bytes match an earlier copy. AEMO archive months are final, so each table-month is fetched once.
+- Each raw file is loaded into its `raw.*` table in one transaction, tagged with `_source_file` and `_loaded_at`. A file already in the table is not loaded again.
+- AEMO files are read with DuckDB's CSV reader, which loads a month of unit SCADA (about 4.4 million rows) in about a second. A file whose record count does not match its closing count is rejected.
 - Raw tables keep every snapshot. Picking the latest one is left to the staging models.
-- Dates are plain Sydney calendar dates.
+- AEMO timestamps are NEM market time (AEST, UTC+10 all year) and mark the end of each interval.
 
 ## Updating dependencies
 
