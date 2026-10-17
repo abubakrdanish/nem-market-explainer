@@ -10,30 +10,20 @@ charset-normalizer==3.5.2
     # via requests
 duckdb==1.5.6
     # via -r requirements.txt
-exchange-calendars==4.13.2
-    # via -r requirements.txt
 idna==3.20
     # via requests
 iniconfig==2.3.1
     # via pytest
-korean-lunar-calendar==0.4.0
-    # via exchange-calendars
 numpy==2.5.4
-    # via
-    #   exchange-calendars
-    #   pandas
+    # via pandas
 packaging==26.3
     # via pytest
 pandas==3.0.6
-    # via
-    #   -r requirements.txt
-    #   exchange-calendars
+    # via -r requirements.txt
 pluggy==1.7.0
     # via pytest
 pygments==2.21.0
     # via pytest
-pyluach==2.3.0
-    # via exchange-calendars
 pytest==9.1.1
     # via -r requirements.txt
 python-dateutil==2.9.0.post0
@@ -44,10 +34,6 @@ requests==2.34.2
     # via -r requirements.txt
 six==1.17.0
     # via python-dateutil
-toolz==1.2.0
-    # via exchange-calendars
-tzdata==2026.5
-    # via exchange-calendars
 urllib3==2.8.0
     # via requests
 xlrd==2.0.2

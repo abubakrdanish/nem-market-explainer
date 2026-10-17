@@ -8,11 +8,9 @@ __pycache__/
 # Secrets
 .env
 
-# Data that must not be redistributed: raw downloads, user-supplied prices, the warehouse
+# Data that must not be redistributed: raw downloads and the warehouse
 data/raw/*
 !data/raw/.gitkeep
-data/inbox/*
-!data/inbox/.gitkeep
 warehouse/*
 !warehouse/.gitkeep
 

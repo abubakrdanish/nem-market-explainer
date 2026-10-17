@@ -1,4 +1,4 @@
-user_agent: "asx-market-explainer/0.1 (personal research project; polite daily fetch)"
+user_agent: "nem-market-explainer/0.1 (personal research project; polite daily fetch)"
 min_request_gap_seconds: 3
 
 # Each entry is saved under data/raw/rba/<name>_<YYYYMMDD>.<ext> and loaded into raw.<table>.
@@ -10,10 +10,14 @@ rba:
   - {name: rba_f1, table: rba_f1, url: "https://www.rba.gov.au/statistics/tables/csv/f1-data.csv"}
   - {name: rba_a2, table: rba_a2, url: "https://www.rba.gov.au/statistics/tables/csv/a2-data.csv"}
 
-calendar:
-  exchange: XASX
-  start: "2006-01-02"
+# Monthly MMSDM archive. Each table file is saved under data/raw/aemo/ and loaded into raw.aemo_<table>.
+aemo:
+  archive_url: "https://nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+  start_month: "2021-07"
+  # Unit SCADA is about 4.4 million rows a month, so it can start later than the other tables.
+  scada_start_month: "2021-07"
+  regions: [NSW1, QLD1, SA1, TAS1, VIC1]
 
 quality:
-  # Warn when the newest price is more than this many ASX sessions old.
-  max_price_age_sessions: 5
+  # The archive is published about two weeks after each month ends.
+  max_dispatch_age_days: 50

@@ -1,31 +1,29 @@
-from datetime import date, datetime, timezone
+from datetime import datetime
 
 import pytest
 
-from ingestion.config import expected_tickers
 from ingestion.quality import run_checks
-from ingestion.run import import_local_files, load_all
-from ingestion.trading_calendar import load_sessions
+from ingestion.run import import_events, load_all
 from tests.conftest import EVENTS_FILE
 
-TODAY = date(2026, 10, 17)
+REGIONS = ["NSW1", "QLD1", "SA1", "TAS1", "VIC1"]
+NOW = datetime(2026, 10, 17, 12, 0)
 
 
 @pytest.fixture
-def loaded(con, raw_dir, inbox):
-    import_local_files(inbox, EVENTS_FILE, raw_dir)
+def loaded(con, raw_dir):
+    import_events(EVENTS_FILE, raw_dir)
     load_all(con, raw_dir)
-    load_sessions(con, "2016-01-01", date(2027, 12, 31))
     return con
 
 
-def results(con, today=TODAY) -> dict[str, tuple[str, str]]:
-    return {c.name: (c.status, c.detail) for c in run_checks(con, expected_tickers(), today, max_age=5)}
+def results(con, now=NOW) -> dict[str, tuple[str, str]]:
+    return {c.name: (c.status, c.detail) for c in run_checks(con, REGIONS, now, max_age_days=50)}
 
 
-def add_price(con, ticker="BHP", day="2026-10-16", high=11.0, low=10.0, close=10.5, source="extra_20261017.csv"):
-    con.execute("insert into raw.prices values (?, ?, ?, ?, ?, ?, null, null, ?, ?)",
-                [ticker, day, close, high, low, close, source, datetime.now(timezone.utc)])
+def add_price(con, when="2026-09-01 00:05:00", region="NSW1", rrp=50.0, intervention=0, source="extra.zip"):
+    con.execute("insert into raw.aemo_dispatchprice (settlementdate, regionid, intervention, rrp, _source_file, "
+                "_loaded_at) values (?, ?, ?, ?, ?, now())", [when, region, intervention, rrp, source])
 
 
 def test_fixture_data_passes_every_check(loaded):
@@ -33,51 +31,89 @@ def test_fixture_data_passes_every_check(loaded):
     assert statuses == {name: "pass" for name in statuses}
 
 
-@pytest.mark.parametrize("bad_row, failing_check", [
-    ({"close": 0.0}, "positive_prices"),
-    ({"high": 9.0, "low": 10.0}, "high_not_below_low"),
-    ({"day": "2026-10-11"}, "trading_days"),  # a Sunday
-    ({"day": "2026-10-19"}, "no_future_dates"),
-])
-def test_bad_rows_fail_their_check(loaded, bad_row, failing_check):
-    add_price(loaded, **bad_row)
-    assert results(loaded)[failing_check][0] == "fail"
-
-
-def test_duplicate_ticker_date_in_one_file_fails(loaded):
+def test_duplicate_keys_within_a_file_fail(loaded):
     add_price(loaded)
     add_price(loaded)
-    assert results(loaded)["unique_ticker_date"][0] == "fail"
+    assert results(loaded)["unique_dispatchprice"][0] == "fail"
 
 
-def test_missing_ticker_is_named(loaded):
-    loaded.execute("delete from raw.prices where ticker = 'CSL'")
-    status, detail = results(loaded)["expected_tickers"]
-    assert status == "fail" and "CSL" in detail
+def test_an_intervention_row_is_not_a_duplicate(loaded):
+    add_price(loaded, intervention=1, source="dispatchprice_202609_01_20261017.zip")
+    assert results(loaded)["unique_dispatchprice"][0] == "pass"
 
 
-def test_a_smaller_newer_snapshot_fails(loaded):
-    first = loaded.execute("select distinct _source_file from raw.prices").fetchone()[0]
-    stem = first.rsplit("_", 1)[0]
-    loaded.execute(f"insert into raw.prices select * replace ('{stem}_20991231.csv' as _source_file) "
-                   f"from raw.prices where ticker = 'BHP'")
+@pytest.mark.parametrize("rrp", [10_000.0, -1_000.0])
+def test_prices_outside_the_floor_and_cap_fail(loaded, rrp):
+    add_price(loaded, rrp=rrp)
+    assert results(loaded)["price_limits"][0] == "fail"
+
+
+def test_prices_need_thresholds(loaded):
+    loaded.execute("delete from raw.aemo_market_price_thresholds")
+    assert results(loaded)["price_limits"][0] == "fail"
+
+
+def test_a_missing_region_is_named(loaded):
+    loaded.execute("delete from raw.aemo_dispatchprice where regionid = 'TAS1'")
+    status, detail = results(loaded)["regions"]
+    assert status == "fail" and "TAS1" in detail
+
+
+def test_a_missing_interval_warns(loaded):
+    loaded.execute("delete from raw.aemo_dispatchprice where regionid = 'SA1' and settlementdate = '2026-09-01 00:30'")
+    status, detail = results(loaded)["dispatch_intervals"]
+    assert status == "warn" and detail == "SA1: 1 missing intervals"
+
+
+@pytest.mark.parametrize("when", ["2021-09-30 23:55:00", "2026-09-01 00:07:00"])
+def test_trading_prices_off_their_grid_fail(loaded, when):
+    loaded.execute("insert into raw.aemo_tradingprice (settlementdate, regionid, rrp, _source_file, _loaded_at) "
+                   "values (?, 'NSW1', 1, 'x.zip', now())", [when])
+    assert results(loaded)["trading_intervals"][0] == "fail"
+
+
+def test_a_30_minute_trading_price_before_the_change_passes(loaded):
+    loaded.execute("insert into raw.aemo_tradingprice (settlementdate, regionid, rrp, _source_file, _loaded_at) "
+                   "values ('2021-10-01 00:00:00', 'NSW1', 1, 'x.zip', now())")
+    assert results(loaded)["trading_intervals"][0] == "pass"
+
+
+def test_future_rows_fail(loaded):
+    assert results(loaded, now=datetime(2026, 9, 1, 0, 30))["no_future_rows"][0] == "fail"
+
+
+def test_an_unregistered_unit_warns(loaded):
+    loaded.execute("insert into raw.aemo_dispatch_unit_scada values ('2026-09-01 00:05', 'SYN_GHOST', 1, 'x.zip', now())")
+    status, detail = results(loaded)["units_registered"]
+    assert status == "warn" and "SYN_GHOST" in detail
+
+
+def test_a_smaller_republished_month_fails(loaded):
+    loaded.execute("insert into raw.aemo_dispatchprice select * replace ('dispatchprice_202609_01_20991231.zip' "
+                   "as _source_file) from raw.aemo_dispatchprice where regionid = 'NSW1'")
     assert results(loaded)["snapshots_do_not_shrink"][0] == "fail"
 
 
+def test_a_smaller_standing_table_in_a_later_month_fails(loaded):
+    loaded.execute("insert into raw.aemo_dualloc select * replace ('dualloc_202610_01_20261112.zip' "
+                   "as _source_file) from raw.aemo_dualloc limit 1")
+    assert results(loaded)["snapshots_do_not_shrink"][0] == "fail"
+
+
+def test_a_new_interval_month_is_not_compared_with_the_last(loaded):
+    loaded.execute("insert into raw.aemo_dispatchprice select * replace ('dispatchprice_202610_01_20261112.zip' "
+                   "as _source_file, settlementdate + interval 30 days as settlementdate) "
+                   "from raw.aemo_dispatchprice where regionid = 'NSW1' limit 1")
+    assert results(loaded, now=datetime(2026, 11, 1))["snapshots_do_not_shrink"][0] == "pass"
+
+
 def test_freshness_reports_age_and_warns_when_stale(loaded):
-    status, detail = results(loaded)["freshness_prices"]
-    assert status == "pass" and detail == "newest price 2026-10-16, 0 sessions and 1 days old"
-    status, detail = results(loaded, today=date(2026, 11, 2))["freshness_prices"]
-    assert status == "warn" and "11 sessions" in detail
+    status, detail = results(loaded)["freshness_dispatch"]
+    assert status == "pass" and detail == "newest dispatch interval 2026-09-01 01:00:00, 46 days old"
+    assert results(loaded, now=datetime(2026, 11, 1))["freshness_dispatch"][0] == "warn"
 
 
 def test_an_empty_rba_table_fails_freshness(loaded):
     loaded.execute("delete from raw.rba_a2")
     status, detail = results(loaded)["freshness_rba"]
     assert status == "fail" and "rba_a2 None" in detail
-
-
-def test_a_ticker_that_stops_early_is_flagged(loaded):
-    loaded.execute("delete from raw.prices where ticker = 'WDS' and date > '2026-09-25'")
-    status, detail = results(loaded)["coverage"]
-    assert status == "warn" and detail.startswith("WDS: ends 2026-09-25")

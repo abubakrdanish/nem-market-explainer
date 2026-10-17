@@ -1,4 +1,11 @@
 event_date,time_sydney,event_type,title,source_url,verified_on
+2021-10-01,00:00,nem_market,Five-minute settlement starts in the NEM,https://www.aemo.com.au/Initiatives/Major-programs/Past-major-programs/Five-Minute-Settlement/5MS-Program-management/5MS-Commencement,
+2022-04-01,,generator_closure,Liddell unit 3 closes,https://wattclarity.com.au/?p=25248,2026-10-17
+2022-06-15,14:05,nem_market,AEMO suspends the spot market in all NEM regions,https://www.claytonutz.com/knowledge/2022/june/aemo-takes-action-wholesale-electricity-spot-market-suspended-so-review-energy-purchase-agreements,2026-10-17
+2022-06-24,14:00,nem_market,AEMO ends the spot market suspension,https://wattclarity.com.au/articles/2022/06/24june-07-40-market-suspension-continues-into-friday/,2026-10-17
+2023-04-24,,generator_closure,Liddell unit 4 closes,https://wattclarity.com.au/?p=25248,2026-10-17
+2023-04-26,,generator_closure,Liddell unit 2 closes,https://wattclarity.com.au/?p=25248,2026-10-17
+2023-04-28,10:30,generator_closure,"Liddell unit 1 closes, the last unit at the station",https://www.pv-magazine-australia.com/?p=7961,2026-10-17
 2024-01-10,11:30,abs_release,"Monthly Consumer Price Index Indicator, November 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/nov-2023,2026-10-17
 2024-01-18,11:30,abs_release,"Labour Force, Australia, December 2023",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/dec-2023,2026-10-17
 2024-01-31,11:30,abs_release,"Consumer Price Index, Australia, December Quarter 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/dec-quarter-2023,2026-10-17

@@ -3,10 +3,13 @@ from __future__ import annotations
 
 import shutil
 import socket
+import zipfile
+from datetime import date
 from pathlib import Path
 
 import pytest
 
+from ingestion import aemo
 from ingestion.init_duckdb import connect
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -21,6 +24,15 @@ RAW_LAYOUT = {
 }
 
 
+def zip_fixture(table: aemo.AemoTable, directory: Path, saved: str = "20261017") -> Path:
+    """Zip a synthetic AEMO CSV the way the archive ships it, named as the pipeline saves it."""
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{aemo.stem(table, date(2026, 9, 1), '01')}_{saved}.zip"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.write(FIXTURES / f"synthetic_aemo_{table.name.lower()}.csv", f"PUBLIC_ARCHIVE#{table.name}.CSV")
+    return path
+
+
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch):
     def guard(self, address):
@@ -31,20 +43,14 @@ def no_network(monkeypatch):
 
 @pytest.fixture
 def raw_dir(tmp_path) -> Path:
-    """A data/raw folder holding the RBA fixtures as if they had been downloaded."""
+    """A data/raw folder holding the RBA and AEMO fixtures as if they had been downloaded."""
     root = tmp_path / "raw"
     for fixture, target in RAW_LAYOUT.items():
         (root / target).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(FIXTURES / fixture, root / target)
+    for table in aemo.TABLES:
+        zip_fixture(table, root / "aemo")
     return root
-
-
-@pytest.fixture
-def inbox(tmp_path) -> Path:
-    folder = tmp_path / "inbox"
-    folder.mkdir()
-    shutil.copy(FIXTURES / "FAKE_synthetic_prices.csv", folder)
-    return folder
 
 
 @pytest.fixture

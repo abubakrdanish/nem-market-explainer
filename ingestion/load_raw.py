@@ -6,6 +6,7 @@ already present in its table is skipped, so re-running adds nothing.
 from __future__ import annotations
 
 import logging
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -16,19 +17,23 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
-def write(con: duckdb.DuckDBPyConnection, table: str, frame: pd.DataFrame, replace: bool = False) -> None:
-    """Insert a frame by column name in one transaction, optionally replacing the table's rows."""
+@contextmanager
+def transaction(con: duckdb.DuckDBPyConnection):
     con.begin()
     try:
-        if replace:
-            con.execute(f"delete from raw.{table}")
-        con.register("incoming", frame)
-        con.execute(f"insert into raw.{table} by name select * from incoming")
-        con.unregister("incoming")
+        yield
         con.commit()
     except Exception:
         con.rollback()
         raise
+
+
+def write(con: duckdb.DuckDBPyConnection, table: str, frame: pd.DataFrame) -> None:
+    """Insert a frame by column name in one transaction."""
+    with transaction(con):
+        con.register("incoming", frame)
+        con.execute(f"insert into raw.{table} by name select * from incoming")
+        con.unregister("incoming")
 
 
 def loaded_files(con: duckdb.DuckDBPyConnection, table: str) -> set[str]:
