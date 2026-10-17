@@ -57,7 +57,12 @@ After the completed load of 2026-10-17 (July 2021 to September 2026), `raw.aemo_
 - Five-minute settlement started on 1 October 2021. Trading prices are 30-minute up to the interval ending 2021-10-01 00:00 and 5-minute from 00:05. Dispatch prices were 5-minute throughout. In TRADINGPRICE, `PERIODID` counts from midnight, though the NEM trading day starts at 04:00.
 - When AEMO intervenes in the market, an interval can have a second row with `INTERVENTION = 1`. Prices and flows for analysis should use `INTERVENTION = 0`. The unique key includes the flag.
 - Prices can be negative and can reach the cap. The floor has been −1,000 throughout the window. The cap rose from 15,100 in 2021-22 to 23,200 in 2026-27.
-- SCADA values can be negative: batteries charging, and some loads.
+- SCADA signs depend on the unit. BIDIRECTIONAL batteries report charging as negative. LOAD units, such as pumped hydro pumps and the charging half of a split battery, report consumption as positive. Generators show small negative values for auxiliary load.
+- Batteries moved from split GENERATOR and LOAD units to single BIDIRECTIONAL units between 4 July and 10 December 2024. Eight split units (BALB, GANN, RIVN, DPNT) kept sending 0 MW SCADA for about 13 hours after their registrations ended at 00:00 on 14 August 2024.
+- Units can change region: TB2SF1, HAUGHTSS and DRXNDB04 do in this window. Join SCADA to DUDETAILSUMMARY by date, not by unit alone.
+- In 14 SA1 intervals between September 2024 and March 2025, no generator in the region has a SCADA row.
+- TRADINGPRICE is rounded to the cent, so after October 2021 it differs from DISPATCHPRICE by up to $0.005 on about 44% of rows.
+- In DISPATCHINTERCONNECTORRES, `MARGINALVALUE` is 0 on every link except Basslink, and in 95,757 rows the export limit is below the import limit.
 - Fuel type is blank for about one in five gensets in GENUNITS, mostly old or retired units.
 - The registration data still lists the `SNOWY1` region, removed in 2008. It does not appear in the window.
 

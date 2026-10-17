@@ -2,13 +2,13 @@
 
 Why did the wholesale electricity price move in a given region and interval?
 
-This project collects the data needed to answer that from the National Electricity Market (NEM): 5-minute prices, demand, interconnector flows and the output of every generating unit, plus unit registration and fuel types, the RBA cash rate and exchange rate, and a calendar of market events. Raw files are saved unchanged and loaded into DuckDB. Later stages will model the data with dbt and add an explainer that answers only from the data.
+This project collects the data needed to answer that from the National Electricity Market (NEM): 5-minute prices, demand, interconnector flows and the output of every generating unit, plus unit registration and fuel types, the RBA cash rate and exchange rate, and a calendar of market events. Raw files are saved unchanged and loaded into DuckDB, and dbt models turn them into a few marts that answer "what happened in this region on this day". A later stage will add an explainer that answers only from the data.
 
 > Personal portfolio project. It describes what happened in past data. It is not energy market advice or financial advice.
 
 ## Status
 
-Step 2 is done: AEMO ingestion, the raw layer and tests. dbt models and the explainer are not built yet.
+Steps 2 and 3 are done: AEMO ingestion, the raw layer, and the dbt models with their tests. The explainer is not built yet.
 
 ## Data
 
@@ -20,7 +20,7 @@ Step 2 is done: AEMO ingestion, the raw layer and tests. dbt models and the expl
 | AUD/USD and trade-weighted index | RBA table F11 | from 2014 |
 | Market events, generator closures, RBA meetings, ABS releases | `data/events.csv`, edited by hand | 2021 to 2027 |
 
-[docs/data_sources.md](docs/data_sources.md) covers each source's terms, table layout and known quirks. [docs/data_dictionary.md](docs/data_dictionary.md) explains columns that are easy to misread, such as the price suspension flags.
+[docs/data_sources.md](docs/data_sources.md) covers each source's terms, table layout and known quirks. [docs/data_dictionary.md](docs/data_dictionary.md) describes the marts and the columns that are easy to misread. Read its first section before using them: demand is operational demand and SCADA leaves out rooftop solar, so solar's share is understated, and battery charging has a series break in the second half of 2024. [docs/findings.md](docs/findings.md) records what the marts show, with queries to re-run.
 
 ### AEMO licence
 
@@ -42,14 +42,21 @@ python -m ingestion.init_duckdb   # creates warehouse/nem.duckdb with schemas ra
 python -m ingestion.run           # downloads RBA tables and the AEMO archive, imports events, loads raw
 python -m ingestion.quality       # data quality checks and freshness; exits 1 on a failure
 python -m pytest                  # offline tests
+
+cd dbt_project
+cp profiles.yml.example profiles.yml
+dbt build --profiles-dir .        # staging, intermediate and marts, plus their tests
 ```
 
 The first run downloads about 2 GB from NEMWEB, one file every few seconds, and takes about half an hour. Later runs fetch only months not yet saved. `python -m ingestion.run --offline` skips downloads and loads what is already on disk. Running either again adds nothing.
+
+`dbt build` takes about 20 seconds: about 13 seconds of models (8 of them aggregating the 251 million SCADA rows) and the rest tests. It writes the `staging`, `intermediate`, `marts` and `reference` schemas into the same DuckDB file and only reads `raw`. The models use about 0.8 GB, and DuckDB keeps about 0.9 GB of free space in the file for rebuilds, so the file settles at about 3.6 GB. DuckDB allows one writer, so do not run `ingestion.quality` during a build.
 
 ## Layout
 
 ```
 config/       source settings and the AEMO window
+dbt_project/  dbt models (staging, intermediate, marts), seeds, macros and tests
 data/         events.csv (committed); raw/ (gitignored)
 docs/         data sources, terms and data dictionary
 ingestion/    download, raw files, loading, quality checks
