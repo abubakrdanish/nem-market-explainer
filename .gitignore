@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Secrets
+.env
+
+# Data that must not be redistributed: raw downloads, user-supplied prices, the warehouse
+data/raw/*
+!data/raw/.gitkeep
+data/inbox/*
+!data/inbox/.gitkeep
+warehouse/*
+!warehouse/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

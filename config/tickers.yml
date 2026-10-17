@@ -1,0 +1,39 @@
+# Codes are plain ASX codes without a provider suffix (BHP, not BHP.AX).
+# Inbox price files must use the same codes. Add a ticker here and drop its
+# prices into data/inbox/; no code changes are needed.
+index:
+  ticker: XJO
+  name: S&P/ASX 200
+
+stocks:
+  - {ticker: BHP, name: BHP Group, sector: Materials}
+  - {ticker: RIO, name: Rio Tinto, sector: Materials}
+  - {ticker: FMG, name: Fortescue, sector: Materials}
+  - {ticker: NST, name: Northern Star Resources, sector: Materials}
+  - {ticker: S32, name: South32, sector: Materials}
+  - {ticker: MIN, name: Mineral Resources, sector: Materials}
+  - {ticker: CBA, name: Commonwealth Bank, sector: Financials}
+  - {ticker: WBC, name: Westpac, sector: Financials}
+  - {ticker: NAB, name: National Australia Bank, sector: Financials}
+  - {ticker: ANZ, name: ANZ Group, sector: Financials}
+  - {ticker: MQG, name: Macquarie Group, sector: Financials}
+  - {ticker: QBE, name: QBE Insurance, sector: Financials}
+  - {ticker: SUN, name: Suncorp, sector: Financials}
+  - {ticker: CSL, name: CSL, sector: Health Care}
+  - {ticker: RMD, name: ResMed, sector: Health Care}
+  - {ticker: COH, name: Cochlear, sector: Health Care}
+  - {ticker: SHL, name: Sonic Healthcare, sector: Health Care}
+  - {ticker: XRO, name: Xero, sector: Information Technology}
+  - {ticker: WTC, name: WiseTech Global, sector: Information Technology}
+  - {ticker: CPU, name: Computershare, sector: Industrials}
+  - {ticker: REA, name: REA Group, sector: Communication Services}
+  - {ticker: TLS, name: Telstra, sector: Communication Services}
+  - {ticker: WDS, name: Woodside Energy, sector: Energy, former_tickers: [WPL]}
+  - {ticker: STO, name: Santos, sector: Energy}
+  - {ticker: ORG, name: Origin Energy, sector: Utilities}
+  - {ticker: WES, name: Wesfarmers, sector: Consumer Discretionary}
+  - {ticker: JBH, name: JB Hi-Fi, sector: Consumer Discretionary}
+  - {ticker: WOW, name: Woolworths, sector: Consumer Staples}
+  # Listed November 2018 after the Wesfarmers demerger, so history is shorter.
+  - {ticker: COL, name: Coles Group, sector: Consumer Staples}
+  - {ticker: TCL, name: Transurban, sector: Industrials}

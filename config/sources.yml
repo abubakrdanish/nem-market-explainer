@@ -1,0 +1,19 @@
+user_agent: "asx-market-explainer/0.1 (personal research project; polite daily fetch)"
+min_request_gap_seconds: 3
+
+# Each entry is saved under data/raw/rba/<name>_<YYYYMMDD>.<ext> and loaded into raw.<table>.
+# F11 history before 2023 is only published as .xls, one file per period.
+rba:
+  - {name: rba_f11_2014_2017, table: rba_f11, url: "https://www.rba.gov.au/statistics/tables/xls-hist/2014-2017.xls"}
+  - {name: rba_f11_2018_2022, table: rba_f11, url: "https://www.rba.gov.au/statistics/tables/xls-hist/2018-2022.xls"}
+  - {name: rba_f11_1_2023_current, table: rba_f11, url: "https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv"}
+  - {name: rba_f1, table: rba_f1, url: "https://www.rba.gov.au/statistics/tables/csv/f1-data.csv"}
+  - {name: rba_a2, table: rba_a2, url: "https://www.rba.gov.au/statistics/tables/csv/a2-data.csv"}
+
+calendar:
+  exchange: XASX
+  start: "2006-01-02"
+
+quality:
+  # Warn when the newest price is more than this many ASX sessions old.
+  max_price_age_sessions: 5

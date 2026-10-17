@@ -1,0 +1,136 @@
+event_date,time_sydney,event_type,title,source_url
+2024-01-10,11:30,abs_release,"Monthly Consumer Price Index Indicator, November 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/nov-2023
+2024-01-18,11:30,abs_release,"Labour Force, Australia, December 2023",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/dec-2023
+2024-01-31,11:30,abs_release,"Consumer Price Index, Australia, December Quarter 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/dec-quarter-2023
+2024-01-31,11:30,abs_release,"Monthly Consumer Price Index Indicator, December 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/dec-2023
+2024-02-06,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-02-15,11:30,abs_release,"Labour Force, Australia, January 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jan-2024
+2024-02-21,11:30,abs_release,"Wage Price Index, Australia, December 2023",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/dec-2023
+2024-02-28,11:30,abs_release,"Monthly Consumer Price Index Indicator, January 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jan-2024
+2024-03-19,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-03-21,11:30,abs_release,"Labour Force, Australia, February 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/feb-2024
+2024-03-27,11:30,abs_release,"Monthly Consumer Price Index Indicator, February 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/feb-2024
+2024-04-18,11:30,abs_release,"Labour Force, Australia, March 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2024
+2024-04-24,11:30,abs_release,"Consumer Price Index, Australia, March Quarter 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/mar-quarter-2024
+2024-04-24,11:30,abs_release,"Monthly Consumer Price Index Indicator, March 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/mar-2024
+2024-05-07,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-05-15,11:30,abs_release,"Wage Price Index, Australia, March 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/mar-2024
+2024-05-16,11:30,abs_release,"Labour Force, Australia, April 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/apr-2024
+2024-05-29,11:30,abs_release,"Monthly Consumer Price Index Indicator, April 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/apr-2024
+2024-06-13,11:30,abs_release,"Labour Force, Australia, May 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/may-2024
+2024-06-18,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-06-26,11:30,abs_release,"Monthly Consumer Price Index Indicator, May 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2024
+2024-07-18,11:30,abs_release,"Labour Force, Australia, June 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jun-2024
+2024-07-31,11:30,abs_release,"Consumer Price Index, Australia, June Quarter 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jun-quarter-2024
+2024-07-31,11:30,abs_release,"Monthly Consumer Price Index Indicator, June 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jun-2024
+2024-08-06,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-08-13,11:30,abs_release,"Wage Price Index, Australia, June 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/jun-2024
+2024-08-15,11:30,abs_release,"Labour Force, Australia, July 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jul-2024
+2024-08-28,11:30,abs_release,"Monthly Consumer Price Index Indicator, July 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jul-2024
+2024-09-19,11:30,abs_release,"Labour Force, Australia, August 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/aug-2024
+2024-09-24,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-09-25,11:30,abs_release,"Monthly Consumer Price Index Indicator, August 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/aug-2024
+2024-10-17,11:30,abs_release,"Labour Force, Australia, September 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/sep-2024
+2024-10-30,11:30,abs_release,"Consumer Price Index, Australia, September Quarter 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/sep-quarter-2024
+2024-10-30,11:30,abs_release,"Monthly Consumer Price Index Indicator, September 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/sep-2024
+2024-11-05,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-11-13,11:30,abs_release,"Wage Price Index, Australia, September 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/sep-2024
+2024-11-14,11:30,abs_release,"Labour Force, Australia, October 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/oct-2024
+2024-11-27,11:30,abs_release,"Monthly Consumer Price Index Indicator, October 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/oct-2024
+2024-12-10,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2024/
+2024-12-12,11:30,abs_release,"Labour Force, Australia, November 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/nov-2024
+2025-01-08,11:30,abs_release,"Monthly Consumer Price Index Indicator, November 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/nov-2024
+2025-01-16,11:30,abs_release,"Labour Force, Australia, December 2024",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/dec-2024
+2025-01-29,11:30,abs_release,"Consumer Price Index, Australia, December Quarter 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/dec-quarter-2024
+2025-01-29,11:30,abs_release,"Monthly Consumer Price Index Indicator, December 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/dec-2024
+2025-02-18,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-02-19,11:30,abs_release,"Wage Price Index, Australia, December 2024",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/dec-2024
+2025-02-20,11:30,abs_release,"Labour Force, Australia, January 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jan-2025
+2025-02-26,11:30,abs_release,"Monthly Consumer Price Index Indicator, January 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jan-2025
+2025-03-20,11:30,abs_release,"Labour Force, Australia, February 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/feb-2025
+2025-03-26,11:30,abs_release,"Monthly Consumer Price Index Indicator, February 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/feb-2025
+2025-04-01,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-04-17,11:30,abs_release,"Labour Force, Australia, March 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2025
+2025-04-30,11:30,abs_release,"Monthly Consumer Price Index Indicator, March 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/mar-2025
+2025-05-14,11:30,abs_release,"Wage Price Index, Australia, March 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/mar-2025
+2025-05-15,11:30,abs_release,"Labour Force, Australia, April 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/apr-2025
+2025-05-20,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-05-28,11:30,abs_release,"Consumer Price Index, Australia, March Quarter 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/mar-quarter-2025
+2025-05-28,11:30,abs_release,"Monthly Consumer Price Index Indicator, April 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/apr-2025
+2025-06-19,11:30,abs_release,"Labour Force, Australia, May 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/may-2025
+2025-06-25,11:30,abs_release,"Monthly Consumer Price Index Indicator, May 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2025
+2025-07-08,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-07-17,11:30,abs_release,"Labour Force, Australia, June 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jun-2025
+2025-07-30,11:30,abs_release,"Consumer Price Index, Australia, June Quarter 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jun-quarter-2025
+2025-07-30,11:30,abs_release,"Monthly Consumer Price Index Indicator, June 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jun-2025
+2025-08-12,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-08-13,11:30,abs_release,"Wage Price Index, Australia, June 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/jun-2025
+2025-08-14,11:30,abs_release,"Labour Force, Australia, July 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jul-2025
+2025-08-27,11:30,abs_release,"Monthly Consumer Price Index Indicator, July 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/jul-2025
+2025-09-18,11:30,abs_release,"Labour Force, Australia, August 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/aug-2025
+2025-09-24,11:30,abs_release,"Monthly Consumer Price Index Indicator, August 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/aug-2025
+2025-09-30,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-10-16,11:30,abs_release,"Labour Force, Australia, September 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/sep-2025
+2025-10-29,11:30,abs_release,"Consumer Price Index, Australia, September Quarter 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/sep-quarter-2025
+2025-10-29,11:30,abs_release,"Monthly Consumer Price Index Indicator, September 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/sep-2025
+2025-11-04,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-11-13,11:30,abs_release,"Labour Force, Australia, October 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/oct-2025
+2025-11-19,11:30,abs_release,"Wage Price Index, Australia, September 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/sep-2025
+2025-11-26,11:30,abs_release,"Consumer Price Index, Australia, October 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/oct-2025
+2025-12-09,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2025/
+2025-12-11,11:30,abs_release,"Labour Force, Australia, November 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/nov-2025
+2026-01-07,11:30,abs_release,"Consumer Price Index, Australia, November 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/nov-2025
+2026-01-22,11:30,abs_release,"Labour Force, Australia, December 2025",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/dec-2025
+2026-01-28,11:30,abs_release,"Consumer Price Index, Australia, December 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/dec-2025
+2026-02-03,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-02-18,11:30,abs_release,"Wage Price Index, Australia, December 2025",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/dec-2025
+2026-02-19,11:30,abs_release,"Labour Force, Australia, January 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jan-2026
+2026-02-26,11:45,abs_release,"Consumer Price Index, Australia, January 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jan-2026
+2026-03-17,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-03-19,11:30,abs_release,"Labour Force, Australia, February 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/feb-2026
+2026-03-25,11:30,abs_release,"Consumer Price Index, Australia, February 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/feb-2026
+2026-04-23,11:30,abs_release,"Labour Force, Australia, March 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2026
+2026-04-29,11:30,abs_release,"Consumer Price Index, Australia, March 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/mar-2026
+2026-05-05,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-05-13,11:30,abs_release,"Wage Price Index, Australia, March 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/mar-2026
+2026-05-27,11:30,abs_release,"Consumer Price Index, Australia, April 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/apr-2026
+2026-05-29,11:30,abs_release,"Labour Force, Australia, April 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/apr-2026
+2026-06-16,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-06-24,11:30,abs_release,"Consumer Price Index, Australia, May 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/may-2026
+2026-07-03,11:30,abs_release,"Labour Force, Australia, May 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/may-2026
+2026-07-29,11:30,abs_release,"Consumer Price Index, Australia, June 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jun-2026
+2026-07-31,11:30,abs_release,"Labour Force, Australia, June 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jun-2026
+2026-08-11,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-08-19,11:30,abs_release,"Wage Price Index, Australia, June 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia/jun-2026
+2026-08-20,11:30,abs_release,"Labour Force, Australia, July 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jul-2026
+2026-08-26,11:30,abs_release,"Consumer Price Index, Australia, July 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/jul-2026
+2026-09-24,11:30,abs_release,"Labour Force, Australia, August 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/aug-2026
+2026-09-29,14:30,rba_decision,RBA monetary policy decision,https://www.rba.gov.au/monetary-policy/int-rate-decisions/2026/
+2026-09-30,11:30,abs_release,"Consumer Price Index, Australia, August 2026",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/aug-2026
+2026-10-15,11:30,abs_release,"Labour Force, Australia, September 2026",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/sep-2026
+2026-10-28,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2026-11-03,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2026-11-18,11:30,abs_release,"Wage Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia
+2026-11-19,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2026-11-25,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2026-12-08,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2026-12-17,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2027-01-06,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2027-01-21,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2027-01-27,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2027-02-09,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-02-17,11:30,abs_release,"Wage Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia
+2027-02-18,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2027-02-24,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2027-03-23,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-03-24,11:30,abs_release,"Consumer Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia
+2027-03-25,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2027-04-15,11:30,abs_release,"Labour Force, Australia (scheduled)",https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia
+2027-05-04,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-05-19,11:30,abs_release,"Wage Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia
+2027-06-22,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-08-10,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-08-18,11:30,abs_release,"Wage Price Index, Australia (scheduled)",https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/wage-price-index-australia
+2027-09-28,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-11-02,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html
+2027-12-14,14:30,rba_decision,RBA monetary policy decision (scheduled),https://www.rba.gov.au/schedules-events/board-meeting-schedules.html

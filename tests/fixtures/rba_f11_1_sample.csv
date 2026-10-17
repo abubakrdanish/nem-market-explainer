@@ -1,0 +1,17 @@
+﻿F11.1  EXCHANGE RATES,,
+Title,A$1=USD,Trade-weighted Index May 1970 = 100
+Description,AUD/USD Exchange Rate; see notes for further detail.,Australian Dollar Trade-weighted Index
+Frequency,Daily,Daily
+Type,Indicative,Indicative
+Units,USD,Index
+
+
+Source,WM/Reuters,RBA
+Publication date,16-Oct-2026,16-Oct-2026
+Series ID,FXRUSD,FXRTWI
+01-Oct-2026,0.6900,64.10
+02-Oct-2026,0.6912,
+05-Oct-2026,0.6925,64.30
+
+
+
