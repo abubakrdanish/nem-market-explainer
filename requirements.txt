@@ -1,6 +1,9 @@
 duckdb
+dbt-core
+dbt-duckdb
 pandas
 pyyaml
 requests
 xlrd
 pytest
+pip-tools
