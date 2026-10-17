@@ -1,8 +1,13 @@
 [project]
-name = "asx-market-explainer"
+name = "nem-market-explainer"
 version = "0.1.0"
-description = "ASX market data pipeline: RBA rates, user-supplied ASX prices and an events calendar in DuckDB"
+description = "National Electricity Market data pipeline: AEMO archive tables, RBA rates and an events calendar in DuckDB"
 requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/abubakrdanish/nem-market-explainer"
+Repository = "https://github.com/abubakrdanish/nem-market-explainer"
+Issues = "https://github.com/abubakrdanish/nem-market-explainer/issues"
 
 [build-system]
 requires = ["setuptools>=68"]
