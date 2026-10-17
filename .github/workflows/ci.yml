@@ -24,3 +24,13 @@ jobs:
       - run: pip install -r requirements.lock
 
       - run: python -m pytest
+
+      - name: Load the fixtures into a DuckDB file
+        run: python -m tests.fixtures.build_fixture_warehouse warehouse/fixture.duckdb
+
+      # The fixtures cover one hour, so tests that need whole days have nothing to check.
+      - name: dbt build on the fixtures
+        working-directory: dbt_project
+        run: |
+          cp profiles.yml.example profiles.yml
+          dbt build --profiles-dir . --target fixture

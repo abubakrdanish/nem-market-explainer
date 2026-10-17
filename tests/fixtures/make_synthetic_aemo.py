@@ -14,6 +14,9 @@ from pathlib import Path
 OUT = Path(__file__).parent
 REGIONS = ["NSW1", "QLD1", "SA1", "TAS1", "VIC1"]
 INTERCONNECTORS = ["N-Q-MNSP1", "NSW1-QLD1", "T-V-MNSP1", "V-S-MNSP1", "V-SA", "VIC1-NSW1"]
+# Every interconnector carries 50 MW from the first region in its ID to the second, so net interchange
+# (positive = export) is the signed sum of those flows, as dbt's net interchange test expects.
+NET_INTERCHANGE = {"NSW1": 50, "QLD1": -100, "SA1": -100, "TAS1": 50, "VIC1": 100}
 UNITS = {"SYN_COAL1": ("NSW1", "Black coal", 500.0), "SYN_WIND1": ("SA1", "Wind", 100.0),
          "SYN_BATT1": ("VIC1", "Battery Storage", 50.0)}
 INTERVALS = [datetime(2026, 9, 1, 0, 5) + timedelta(minutes=5 * i) for i in range(12)]
@@ -48,7 +51,7 @@ def main() -> None:
           ["SETTLEMENTDATE", "RUNNO", "REGIONID", "INTERVENTION", "TOTALDEMAND", "AVAILABLEGENERATION",
            "DEMANDFORECAST", "NETINTERCHANGE", "SYNTHETIC_EXTRA", "TOTALINTERMITTENTGENERATION", "UIGF",
            "LASTCHANGED"],
-          [[ts(t), 1, r, 0, 1000 + i, 2000, 1, -10, "x", 100, 110, CHANGED]
+          [[ts(t), 1, r, 0, 1000 + i, 2000, 1, NET_INTERCHANGE[r], "x", 100, 110, CHANGED]
            for i, t in enumerate(INTERVALS) for r in REGIONS])
     write("DISPATCHINTERCONNECTORRES", "DISPATCH", "INTERCONNECTORRES",
           ["SETTLEMENTDATE", "RUNNO", "INTERCONNECTORID", "INTERVENTION", "METEREDMWFLOW", "MWFLOW", "MWLOSSES",
