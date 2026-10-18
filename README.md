@@ -2,13 +2,20 @@
 
 Why did the wholesale electricity price move in a given region and interval?
 
-This project collects the data needed to answer that from the National Electricity Market (NEM): 5-minute prices, demand, interconnector flows and the output of every generating unit, plus unit registration and fuel types, the RBA cash rate and exchange rate, and a calendar of market events. Raw files are saved unchanged and loaded into DuckDB, and dbt models turn them into a few marts that answer "what happened in this region on this day". A later stage will add an explainer that answers only from the data.
+This project collects the data needed to answer that from the National Electricity Market (NEM): 5-minute prices, demand, interconnector flows and the output of every generating unit, plus unit registration and fuel types, the RBA cash rate and exchange rate, and a calendar of market events. Raw files are saved unchanged and loaded into DuckDB, and dbt models turn them into a few marts that answer "what happened in this region on this day". An explainer then describes a region and day using only facts drawn from the marts, through a small local model, and checks every figure it writes against those facts.
 
 > Personal portfolio project. It describes what happened in past data. It is not energy market advice or financial advice.
 
 ## Status
 
-Steps 2 and 3 are done: AEMO ingestion, the raw layer, and the dbt models with their tests. The explainer is not built yet.
+Steps 2 to 4 are done: AEMO ingestion, the raw layer, the dbt models with their tests, and the grounded explainer with its evaluation.
+
+**What the evaluation found.** A small local model can be made reliably grounded, but not reliably discerning:
+- **Grounded:** across 84 answers on 28 chosen days, no answer used a number that is not in its evidence pack, only 3 stated a cause the pack does not hold, and none named the suspension or the price cap as the cause of June 2022 prices.
+- **Not discerning:** it does not reliably tell an unusual day from an ordinary one, and about 5 answers in 28 still describe a real figure wrongly.
+- **A metric artefact:** making the explainer say whether the evidence explains a move took that measure from 0 of 10 to 10 of 10. The sentences are a template, and only 3 of 28 answers argue anything. Requiring a behaviour in the checks produced its form, not its substance.
+
+Details, failures and both models' trade-offs are in [docs/evaluation.md](docs/evaluation.md).
 
 ## Data
 
@@ -46,11 +53,20 @@ python -m pytest                  # offline tests
 cd dbt_project
 cp profiles.yml.example profiles.yml
 dbt build --profiles-dir .        # staging, intermediate and marts, plus their tests
+cd ..
+
+ollama pull qwen3:4b              # about 2.5 GB, runs locally
+python -m explainer NSW1 2022-06-18
+python -m warehouse_chat "What was the highest price in South Australia in 2025?"
 ```
 
 The first run downloads about 2 GB from NEMWEB, one file every few seconds, and takes about half an hour. Later runs fetch only months not yet saved. `python -m ingestion.run --offline` skips downloads and loads what is already on disk. Running either again adds nothing.
 
 `dbt build` takes about 20 seconds: about 13 seconds of models (8 of them aggregating the 251 million SCADA rows) and the rest tests. It writes the `staging`, `intermediate`, `marts` and `reference` schemas into the same DuckDB file and only reads `raw`. The models use about 0.8 GB, and DuckDB keeps about 0.9 GB of free space in the file for rebuilds, so the file settles at about 3.6 GB. DuckDB allows one writer, so do not run `ingestion.quality` during a build.
+
+The explainer reads the warehouse read-only and calls Ollama on `localhost`; an answer took 13 to 62 seconds with `qwen3:4b` in the evaluation, 32 on average. Every answer ends with the disclaimer that it is not energy market advice or financial advice. [docs/explainer.md](docs/explainer.md) says how it works and what it cannot do, and [docs/evaluation.md](docs/evaluation.md) reports how it did on 28 chosen days, failures included.
+
+The warehouse chat tool turns a question into SQL, validates it, then runs it through a separate read-only DuckDB connection. It always prints the SQL or says that no query ran. Queries can use only the documented marts and two reference dimensions, return at most 200 rows and run for at most 10 seconds. It retries a failed model query no more than twice. It uses only local Ollama and needs no account or API key. Its output describes past data only. It is not energy market advice and not financial advice. [docs/chat.md](docs/chat.md) lists the safety rules, evaluation results and failures.
 
 ## Layout
 
@@ -58,7 +74,10 @@ The first run downloads about 2 GB from NEMWEB, one file every few seconds, and 
 config/       source settings and the AEMO window
 dbt_project/  dbt models (staging, intermediate, marts), seeds, macros and tests
 data/         events.csv (committed); raw/ (gitignored)
-docs/         data sources, terms and data dictionary
+docs/         data sources, terms, data dictionary, findings, explainer and evaluation
+eval/         explainer evaluation cases, labels and runner; results/ (gitignored)
+explainer/    evidence pack, prompt, local model call, checks and CLI
+warehouse_chat/ natural-language question, SQL validation, read-only runner and CLI
 ingestion/    download, raw files, loading, quality checks
 tests/        offline tests and small synthetic fixtures
 warehouse/    DuckDB file (gitignored)
