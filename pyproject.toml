@@ -14,7 +14,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["ingestion"]
+packages = ["ingestion", "explainer", "warehouse_chat"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

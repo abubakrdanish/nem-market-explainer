@@ -4,6 +4,7 @@ dbt-duckdb
 pandas
 pyyaml
 requests
+sqlglot
 xlrd
 pytest
 pip-tools
