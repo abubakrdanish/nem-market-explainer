@@ -89,7 +89,7 @@ def answer(question: str, warehouse: Path = WAREHOUSE_PATH, model: str = ollama.
     attempts = []
     with connect(warehouse) as con:
         for _ in range(MAX_RETRIES + 1):
-            response = ollama.ask(question, model, feedback, today)
+            response = ollama.ask(question, model, feedback, today, warehouse=warehouse)
             kind = response.get("kind")
             if kind in ("refusal", "clarification"):
                 return {

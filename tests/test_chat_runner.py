@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import threading
 from datetime import date
 
@@ -7,7 +8,7 @@ import duckdb
 import pytest
 
 from warehouse_chat import runner
-from warehouse_chat.prompt import _last_winter
+from warehouse_chat.prompt import _last_winter, user_message
 from warehouse_chat.schema import prompt_schema
 from warehouse_chat.validate import validate_sql
 
@@ -90,12 +91,18 @@ def test_answer_retries_malformed_model_output(monkeypatch, fixture_marts):
 
 
 def test_refusal_never_runs_sql(monkeypatch, fixture_marts):
-    monkeypatch.setattr(runner.ollama, "ask", lambda *args, **kwargs:
-                        response("refusal", message="The marts do not contain retail bills."))
+    seen = []
+
+    def refuse(*args, **kwargs):
+        seen.append(kwargs["warehouse"])
+        return response("refusal", message="The marts do not contain retail bills.")
+
+    monkeypatch.setattr(runner.ollama, "ask", refuse)
     monkeypatch.setattr(runner, "execute", lambda *args, **kwargs: pytest.fail("SQL was run"))
     out = runner.answer("What was the household bill?", fixture_marts)
     assert out["kind"] == "refusal"
     assert out["sql"] == ""
+    assert seen == [fixture_marts]
 
 
 def test_caveats_are_added_without_trusting_model():
@@ -105,10 +112,15 @@ def test_caveats_are_added_without_trusting_model():
         "battery_accounting"]
 
 
-def test_prompt_schema_has_duckdb_types_and_dbt_descriptions():
-    schema = prompt_schema()
+def test_prompt_schema_has_duckdb_types_and_dbt_descriptions(fixture_marts):
+    schema = prompt_schema(fixture_marts)
     assert "market_date DATE: Calendar date in NEM market time." in schema
     assert "price DOUBLE: Dispatch price (RRP) from the pricing run, $/MWh." in schema
+
+
+def test_user_message_reads_schema_from_selected_warehouse(fixture_marts):
+    message = json.loads(user_message("Question", warehouse=fixture_marts))
+    assert "market_date DATE: Calendar date in NEM market time." in message["database_schema"]
 
 
 def test_last_winter_is_the_last_completed_winter():

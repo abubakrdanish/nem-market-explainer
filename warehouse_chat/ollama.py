@@ -5,7 +5,9 @@ import json
 import os
 import urllib.request
 from datetime import date
+from pathlib import Path
 
+from ingestion.config import WAREHOUSE_PATH
 from warehouse_chat.prompt import SCHEMA, SYSTEM, user_message
 
 DEFAULT_MODEL = "qwen3:4b"
@@ -13,7 +15,7 @@ HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 
 
 def ask(question: str, model: str = DEFAULT_MODEL, feedback: str | None = None,
-        today: date | None = None, timeout: int = 120) -> dict:
+        today: date | None = None, timeout: int = 120, warehouse: Path = WAREHOUSE_PATH) -> dict:
     """Return a query, refusal or clarification from the local model."""
     body = {
         "model": model,
@@ -22,7 +24,7 @@ def ask(question: str, model: str = DEFAULT_MODEL, feedback: str | None = None,
         "options": {"temperature": 0, "seed": 1, "num_ctx": 16384, "num_predict": 600},
         "messages": [
             {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": user_message(question, feedback, today)},
+            {"role": "user", "content": user_message(question, feedback, today, warehouse)},
         ],
     }
     if model.startswith("qwen3"):

@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 from datetime import date
+from pathlib import Path
 
+from ingestion.config import WAREHOUSE_PATH
 from warehouse_chat.schema import prompt_schema
 from warehouse_chat.validate import ALLOWED_FUNCTIONS
 
@@ -60,14 +62,15 @@ def _last_winter(today: date) -> str:
     return f"{year}-06-01 through {year}-08-31"
 
 
-def user_message(question: str, feedback: str | None = None, today: date | None = None) -> str:
+def user_message(question: str, feedback: str | None = None, today: date | None = None,
+                 warehouse: Path = WAREHOUSE_PATH) -> str:
     """Put the untrusted question after the rules and schema as JSON data."""
     today = today or date.today()
     payload = {
         "today": today.isoformat(),
         "last_winter": _last_winter(today),
         "allowed_functions": sorted(ALLOWED_FUNCTIONS),
-        "database_schema": prompt_schema(),
+        "database_schema": prompt_schema(warehouse),
         "question": question,
     }
     if feedback:

@@ -29,13 +29,13 @@ def _models(path: Path, key: str) -> dict[str, dict]:
 
 
 @cache
-def prompt_schema() -> str:
+def prompt_schema(warehouse: Path = WAREHOUSE_PATH) -> str:
     """Render DuckDB types and dbt descriptions for only the allowed tables."""
     sources = {
         "marts": _models(MARTS_YML, "models"),
         "reference": _models(SEEDS_YML, "seeds"),
     }
-    with duckdb.connect(str(WAREHOUSE_PATH), read_only=True) as con:
+    with duckdb.connect(str(warehouse), read_only=True) as con:
         types = {(schema, table, column): kind for schema, table, column, kind in con.execute("""
             select table_schema, table_name, column_name, data_type
             from information_schema.columns
