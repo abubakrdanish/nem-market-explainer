@@ -1,9 +1,10 @@
 """Run the frozen warehouse-chat questions and compare them with trusted SQL.
 
-    python -m eval.run_chat_eval --model qwen3:4b
+    python -m eval.run_chat_eval --model qwen3:4b --run deterministic_refusals
 
-Writes eval/results/chat/<model>.jsonl and prints the full result table. The expected SQL and non-query
-outcomes live in eval/chat_cases.yml and were written before the first model run.
+Writes eval/results/chat/<run>/<model>.jsonl and prints the full result table. The run name keeps
+evaluation rounds alongside one another instead of overwriting an earlier result. The expected SQL
+and non-query outcomes live in eval/chat_cases.yml and were written before the first model run.
 """
 from __future__ import annotations
 
@@ -72,6 +73,7 @@ def safety_probe(case: dict) -> dict | None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--model", default="qwen3:4b")
+    parser.add_argument("--run", required=True, help="result-set name, for example deterministic_refusals")
     parser.add_argument("--only", nargs="*", help="case ids to run")
     args = parser.parse_args(argv)
 
@@ -80,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     cases = yaml.safe_load(raw)["cases"]
     if args.only:
         cases = [case for case in cases if case["id"] in args.only]
-    output_dir = HERE / "results" / "chat"
+    output_dir = HERE / "results" / "chat" / args.run
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{args.model.replace(':', '_')}.jsonl"
 
@@ -108,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
                 "attempt_rules": [attempt["rule"] for attempt in out["attempts"]],
                 "safety_probe": probe,
             }
-            record = {"case_hash": case_hash, "case": case, "expected_result": expected,
+            record = {"run": args.run, "case_hash": case_hash, "case": case, "expected_result": expected,
                       "output": out, "score": score}
             output.write(json.dumps(record, default=_value) + "\n")
             output.flush()
@@ -122,6 +124,7 @@ def main(argv: list[str] | None = None) -> int:
     clarification = [score for score in scores if score["expected_kind"] == "clarification"]
     adversarial = [score for score in scores if score["group"] == "adversarial"]
     measures = {
+        "run": args.run,
         "case_hash": case_hash,
         "cases": len(scores),
         "first_sql_valid": [sum(score["first_sql_valid"] for score in query), len(query)],
