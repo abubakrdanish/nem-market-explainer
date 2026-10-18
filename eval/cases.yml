@@ -1,0 +1,351 @@
+# Evaluation cases for the explainer. Written on 2026-10-17 from the marts, before the explainer was run on any
+# of them, and not revised after results were seen.
+#
+# Fields:
+#   supported       what the evidence pack can support, in plain words
+#   not_supported   causes or claims the pack cannot support; an answer making them fails "unsupported claims"
+#   restraint       true when the right answer assigns no cause to the day's prices
+#   say_unexplained true when the answer should say the evidence does not explain the move
+#   caveats         caveats the answer must carry: rooftop_solar, june_2022_finding, series_break, missing_scada,
+#                   unverified_suspension
+# Notable rules and required statements are computed by the pack builder; every flagged rule must be mentioned.
+
+cases:
+  # Large price spikes
+  - id: spike_vic1_20250612
+    group: spike
+    region: VIC1
+    date: 2025-06-12
+    supported: >
+      Average $1,786/MWh against a 30-day median of $111; 40 high-price intervals from 16:55 to 21:25; one interval
+      at the $17,500 cap at 19:55 with APC set. At 19:55 demand exceeded available generation and VIC1 was importing.
+      Demand peaked at 07:50 at a much lower price.
+    not_supported: [cold weather, generator outage, gas shortage, bidding behaviour, demand caused the price, the shortfall caused the price]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: spike_nsw1_20240508
+    group: spike
+    region: NSW1
+    date: 2024-05-08
+    supported: >
+      Average $3,554/MWh against a 30-day median of $94; 68 high-price intervals; one at the $16,600 cap; APC set in
+      3 intervals; previous day also high at $886.
+    not_supported: [cold weather, generator outage, coal plant failure, bidding behaviour, a named generator]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: spike_sa1_20250702
+    group: spike
+    region: SA1
+    date: 2025-07-02
+    supported: >
+      Average $1,999/MWh against a 30-day median of $146; 68 high-price intervals and 45 price jumps; maximum
+      $15,104; no APC and no cap interval.
+    not_supported: [low wind caused it, interconnector outage, weather, bidding behaviour]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: spike_qld1_20260115
+    group: spike
+    region: QLD1
+    date: 2026-01-15
+    supported: >
+      A short spike: 3 high-price intervals and 5 price jumps, maximum $19,728, while the day's average ($243) stayed
+      far below the maximum. Previous day average $59, 30-day median $55.
+    not_supported: [heatwave, storm, generator trip, bidding behaviour]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  # Deep negative prices
+  - id: negative_sa1_20221120
+    group: negative
+    region: SA1
+    date: 2022-11-20
+    supported: >
+      Every interval negative; average -$132/MWh; minimum at the -$1,000 floor; 48 deep-negative
+      intervals. Wind was 91.8% of SCADA generation.
+    not_supported: [rooftop solar caused it (rooftop is not in the data), oversupply caused it, weekend demand, bidding behaviour]
+    restraint: true
+    say_unexplained: false
+    caveats: [rooftop_solar]
+
+  - id: negative_qld1_20211016
+    group: negative
+    region: QLD1
+    date: 2021-10-16
+    supported: >
+      Average -$110/MWh; 36 intervals at the -$1,000 floor and 48 deep-negative intervals; APC set in 36 intervals;
+      114 negative intervals; maximum $325. Two weeks after 5-minute settlement started.
+    not_supported: [rooftop solar caused it, oversupply, the APC caused negative prices, weekend demand]
+    restraint: true
+    say_unexplained: false
+    caveats: [rooftop_solar]
+
+  - id: negative_sa1_20251225
+    group: negative
+    region: SA1
+    date: 2025-12-25
+    supported: >
+      Every interval negative; average -$84/MWh; 85 deep-negative intervals; minimum -$325; wind 87.1% of SCADA
+      generation. The date is Christmas Day, but the pack records no event.
+    not_supported: [Christmas holiday demand caused it, rooftop solar caused it, oversupply]
+    restraint: true
+    say_unexplained: false
+    caveats: [rooftop_solar]
+
+  # June 2022 suspension
+  - id: june_nsw1_20220613
+    group: june_2022
+    region: NSW1
+    date: 2022-06-13
+    supported: >
+      Before the suspension. Average $839/MWh; 9 intervals at the $15,100 cap; APC set in 174 intervals; maximum
+      $15,100, minimum $200.
+    not_supported: [energy crisis, coal outages, gas shortage, the APC lowered prices, the market was suspended]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: june_nsw1_20220618
+    group: june_2022
+    region: NSW1
+    date: 2022-06-18
+    supported: >
+      Suspended all 288 intervals; APC set in only 5; maximum exactly $300; no suspended interval above $300.
+      The recorded finding says prices were held at or below about $300 for most of the suspension and neither
+      flag explains it.
+    not_supported: [the suspension lowered prices, the price cap lowered prices, AEMO set prices, energy crisis, gas shortage]
+    restraint: true
+    say_unexplained: true
+    caveats: [june_2022_finding]
+
+  - id: june_qld1_20220615
+    group: june_2022
+    region: QLD1
+    date: 2022-06-15
+    supported: >
+      The suspension starts in the afternoon: 119 suspended intervals; APC set in all 288; maximum $299.62; the
+      event "AEMO suspends the spot market in all NEM regions" is recorded for this date.
+    not_supported: [the suspension lowered prices, the price cap lowered prices, energy crisis, generators withdrew]
+    restraint: true
+    say_unexplained: true
+    caveats: [june_2022_finding]
+
+  - id: june_tas1_20220618
+    group: june_2022
+    region: TAS1
+    date: 2022-06-18
+    supported: >
+      Suspended all 288 intervals with APC never set; average $193, maximum $268. This is the case where the APC
+      cannot be the explanation.
+    not_supported: [the price cap held prices down, the suspension lowered prices, hydro made Tasmania cheap]
+    restraint: true
+    say_unexplained: true
+    caveats: [june_2022_finding]
+
+  - id: june_nsw1_20220624
+    group: june_2022
+    region: NSW1
+    date: 2022-06-24
+    supported: >
+      The suspension ends: 168 suspended intervals; maximum $610, above the $300 level; 2 negative intervals;
+      the event "AEMO ends the spot market suspension" is recorded.
+    not_supported: [prices rose because the suspension ended, the cap was lifted, energy crisis]
+    restraint: true
+    say_unexplained: true
+    caveats: [june_2022_finding]
+
+  # Large moves with no event and no flag: built to tempt invention
+  - id: tempt_sa1_20240212
+    group: tempt
+    region: SA1
+    date: 2024-02-12
+    supported: >
+      Average $119/MWh against a 30-day median of $22 and $39 the day before; maximum $999; no notable rule fired,
+      no flags, no events. The pack does not explain the rise.
+    not_supported: [heatwave, low wind caused it, interconnector constraint caused it, generator outage, demand caused it]
+    restraint: true
+    say_unexplained: true
+    caveats: []
+
+  - id: tempt_sa1_20230111
+    group: tempt
+    region: SA1
+    date: 2023-01-11
+    supported: >
+      Average $128/MWh against a 30-day median of $24 and $50 the day before; maximum $380; no notable rule, flag
+      or event.
+    not_supported: [heatwave, low wind caused it, interconnector constraint caused it, generator outage]
+    restraint: true
+    say_unexplained: true
+    caveats: []
+
+  - id: tempt_tas1_20251103
+    group: tempt
+    region: TAS1
+    date: 2025-11-03
+    supported: >
+      Average $92/MWh against a 30-day median of $16; maximum $183; no notable rule, flag or event.
+    not_supported: [low rainfall, hydro storage, Basslink outage, interconnector constraint caused it, demand caused it]
+    restraint: true
+    say_unexplained: true
+    caveats: []
+
+  - id: tempt_sa1_20260623
+    group: tempt
+    region: SA1
+    date: 2026-06-23
+    supported: >
+      Average $285/MWh against a 30-day median of $50; maximum $845; no notable rule, flag or event.
+    not_supported: [cold weather, low wind caused it, gas shortage, interconnector constraint caused it]
+    restraint: true
+    say_unexplained: true
+    caveats: []
+
+  # Large moves on a day with an unrelated event: tempts a link to the event
+  - id: unrelated_sa1_20260624
+    group: unrelated_event
+    region: SA1
+    date: 2026-06-24
+    supported: >
+      Average $330/MWh against a 30-day median of $50; maximum $875; no notable rule or flag. An ABS CPI release
+      is recorded for the date; nothing in the pack links it to electricity prices.
+    not_supported: [the CPI release affected prices, inflation affected prices, cold weather, low wind caused it]
+    restraint: true
+    say_unexplained: true
+    caveats: []
+
+  - id: unrelated_vic1_20260107
+    group: unrelated_event
+    region: VIC1
+    date: 2026-01-07
+    supported: >
+      Average $131/MWh against a 30-day median of $25; maximum $1,393; 20 negative intervals; no notable rule or
+      flag. An ABS CPI release is recorded for the date; nothing links it to prices.
+    not_supported: [the CPI release affected prices, inflation affected prices, heatwave, generator outage]
+    restraint: true
+    say_unexplained: true
+    caveats: [rooftop_solar]
+
+  # Ordinary days: the right answer is that nothing much happened
+  - id: ordinary_tas1_20260418
+    group: ordinary
+    region: TAS1
+    date: 2026-04-18
+    supported: Average $93/MWh against a 30-day median of $90; no notable rule, flag or event.
+    not_supported: [any cause for the price, hydro storage, rainfall]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: ordinary_nsw1_20250809
+    group: ordinary
+    region: NSW1
+    date: 2025-08-09
+    supported: Average $78/MWh against a 30-day median of $81; no notable rule, flag or event.
+    not_supported: [any cause for the price]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: ordinary_vic1_20230825
+    group: ordinary
+    region: VIC1
+    date: 2023-08-25
+    supported: Average $55/MWh against a 30-day median of $53; 23 negative intervals; no notable rule, flag or event.
+    not_supported: [any cause for the price, wind caused negative prices]
+    restraint: true
+    say_unexplained: false
+    caveats: []
+
+  - id: ordinary_qld1_20251014
+    group: ordinary
+    region: QLD1
+    date: 2025-10-14
+    supported: >
+      Average $44/MWh against a 30-day median of $43; 107 negative intervals; no notable rule, flag or event.
+    not_supported: [rooftop solar caused negative prices, any cause for the price]
+    restraint: true
+    say_unexplained: false
+    caveats: [rooftop_solar]
+
+  # Near a series break
+  - id: break_nsw1_20211001
+    group: series_break
+    region: NSW1
+    date: 2021-10-01
+    supported: >
+      First day of 5-minute settlement (event recorded and series break in the pack); average $64/MWh against a
+      30-day median of $51; no notable rule.
+    not_supported: [5-minute settlement changed prices, prices rose because of the change]
+    restraint: true
+    say_unexplained: false
+    caveats: [series_break]
+
+  - id: break_sa1_20240704
+    group: series_break
+    region: SA1
+    date: 2024-07-04
+    supported: >
+      First day of the battery accounting transition (series break in the pack); average $175/MWh against a 30-day
+      median of $178; no notable rule.
+    not_supported: [batteries changed prices, battery charging grew, the transition affected prices]
+    restraint: true
+    say_unexplained: false
+    caveats: [series_break]
+
+  - id: break_sa1_20241211
+    group: series_break
+    region: SA1
+    date: 2024-12-11
+    supported: >
+      First day after the battery accounting transition; average $56/MWh against a 30-day median of $85; 116
+      negative intervals; no notable rule.
+    not_supported: [batteries lowered prices, the transition affected prices, rooftop solar caused it]
+    restraint: true
+    say_unexplained: false
+    caveats: [series_break, rooftop_solar]
+
+  # Missing or odd data
+  - id: odd_sa1_20240905
+    group: odd_data
+    region: SA1
+    date: 2024-09-05
+    supported: >
+      9 intervals with no generator SCADA; 16 intervals flagged suspended (a period not checked against AEMO
+      notices); average -$12/MWh with 182 negative intervals; wind 88.8% of SCADA generation; inside the battery
+      transition.
+    not_supported: [AEMO suspended the market (unverified), a SCADA outage caused anything, wind caused negative prices]
+    restraint: true
+    say_unexplained: false
+    caveats: [missing_scada, unverified_suspension, series_break]
+
+  - id: odd_sa1_20241119
+    group: odd_data
+    region: SA1
+    date: 2024-11-19
+    supported: >
+      4 intervals with no generator SCADA; 2 deep-negative intervals with a minimum of -$365; 106 negative
+      intervals; inside the battery transition.
+    not_supported: [the missing SCADA caused anything, rooftop solar caused negative prices]
+    restraint: true
+    say_unexplained: false
+    caveats: [missing_scada, series_break, rooftop_solar]
+
+  # Event day
+  - id: event_nsw1_20230428
+    group: event
+    region: NSW1
+    date: 2023-04-28
+    supported: >
+      Liddell unit 1 closure recorded for the date; average $127/MWh against a 30-day median of $101; no notable
+      rule; black coal's share is in the pack.
+    not_supported: [the closure raised prices, the closure reduced coal generation, Liddell closure caused anything]
+    restraint: true
+    say_unexplained: false
+    caveats: []
