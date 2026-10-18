@@ -1,12 +1,14 @@
 """Shared fixtures. Network access is blocked so every test proves it runs offline."""
 from __future__ import annotations
 
+import os
 import shutil
 import socket
 import zipfile
 from datetime import date
 from pathlib import Path
 
+import duckdb
 import pytest
 
 from ingestion import aemo
@@ -14,6 +16,7 @@ from ingestion.init_duckdb import connect
 
 FIXTURES = Path(__file__).parent / "fixtures"
 EVENTS_FILE = Path(__file__).parent.parent / "data" / "events.csv"
+DBT_PROJECT = Path(__file__).parent.parent / "dbt_project"
 
 # Fixture file -> where the pipeline would have saved it under data/raw.
 RAW_LAYOUT = {
@@ -31,6 +34,42 @@ def zip_fixture(table: aemo.AemoTable, directory: Path, saved: str = "20261017")
     with zipfile.ZipFile(path, "w") as archive:
         archive.write(FIXTURES / f"synthetic_aemo_{table.name.lower()}.csv", f"PUBLIC_ARCHIVE#{table.name}.CSV")
     return path
+
+
+@pytest.fixture(scope="session")
+def fixture_marts(tmp_path_factory) -> Path:
+    """The fixtures loaded into raw and built into marts by dbt, once per test session."""
+    from dbt.cli.main import dbtRunner
+
+    from tests.fixtures.build_fixture_warehouse import build
+
+    work = tmp_path_factory.mktemp("marts")
+    warehouse = work / "fixture.duckdb"
+    build(warehouse)
+    profiles = work / "profiles"
+    profiles.mkdir()
+    shutil.copy(DBT_PROJECT / "profiles.yml.example", profiles / "profiles.yml")
+    old = os.environ.get("NEM_FIXTURE_WAREHOUSE")
+    os.environ["NEM_FIXTURE_WAREHOUSE"] = str(warehouse)
+    try:
+        result = dbtRunner().invoke(["build", "--quiet", "--project-dir", str(DBT_PROJECT), "--profiles-dir", str(profiles),
+                                     "--target", "fixture", "--target-path", str(work / "target"),
+                                     "--log-path", str(work / "logs")])
+    finally:
+        if old is None:
+            os.environ.pop("NEM_FIXTURE_WAREHOUSE")
+        else:
+            os.environ["NEM_FIXTURE_WAREHOUSE"] = old
+    assert result.success, result.exception
+    # dbt-duckdb keeps its connection open in this process, and DuckDB refuses a second, read-only one to the
+    # same file, so tests read a copy. The models are still in the write-ahead log, so it is copied too and
+    # checkpointed into the copy.
+    copy = work / "explainer_fixture.duckdb"
+    shutil.copy(warehouse, copy)
+    if warehouse.with_suffix(".duckdb.wal").exists():
+        shutil.copy(warehouse.with_suffix(".duckdb.wal"), copy.with_suffix(".duckdb.wal"))
+    duckdb.connect(str(copy)).execute("checkpoint").close()
+    return copy
 
 
 @pytest.fixture(autouse=True)
