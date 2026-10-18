@@ -17,6 +17,17 @@ ROW_CAP = 200
 QUERY_TIMEOUT_SECONDS = 10
 MAX_RETRIES = 2
 
+PERMITTED = ("Only one schema-qualified SELECT over the allowed marts and reference tables, using allowlisted "
+             "functions, is permitted.")
+POLICY_RULES = {
+    "comments_not_allowed": "SQL comments are not permitted.",
+    "single_statement_only": "More than one SQL statement is not permitted.",
+    "select_only": "The statement is not a SELECT.",
+    "table_function_not_allowed": "Table functions, including file readers, are not permitted.",
+    "table_not_allowed": "The query names a table outside the allowlist.",
+    "function_not_allowed": "The query calls a function outside the allowlist.",
+}
+
 CAVEATS = {
     "rooftop_solar": "Generation comes from SCADA and excludes rooftop solar, so solar's share of supply is understated.",
     "settlement_change": "Five-minute settlement began on 1 October 2021; dispatch prices are five-minute throughout.",
@@ -27,6 +38,21 @@ CAVEATS = {
 
 class QueryTimeout(RuntimeError):
     pass
+
+
+def refusal_message(rule: str) -> str:
+    """Describe a refusal without asking the model to explain system behaviour."""
+    if rule == "model_refusal":
+        reason = "The model returned no SQL."
+    else:
+        reason = POLICY_RULES[rule]
+    return f"Refused by {rule}: {reason} No query was run. {PERMITTED}"
+
+
+def clarification_message() -> str:
+    """Return the fixed clarification text used instead of model-written system explanations."""
+    return ("Clarification required by model_clarification: specify the region, date or period, and measure. "
+            f"No query was run. {PERMITTED}")
 
 
 def connect(path: Path = WAREHOUSE_PATH) -> duckdb.DuckDBPyConnection:
@@ -91,10 +117,19 @@ def answer(question: str, warehouse: Path = WAREHOUSE_PATH, model: str = ollama.
         for _ in range(MAX_RETRIES + 1):
             response = ollama.ask(question, model, feedback, today, warehouse=warehouse)
             kind = response.get("kind")
-            if kind in ("refusal", "clarification"):
+            if kind == "refusal":
                 return {
-                    "kind": kind,
-                    "message": str(response.get("message", "")),
+                    "kind": "refusal",
+                    "message": refusal_message("model_refusal"),
+                    "sql": "",
+                    "caveats": [],
+                    "model": response.get("model", model),
+                    "attempts": attempts,
+                }
+            if kind == "clarification":
+                return {
+                    "kind": "clarification",
+                    "message": clarification_message(),
                     "sql": "",
                     "caveats": [],
                     "model": response.get("model", model),
@@ -112,13 +147,22 @@ def answer(question: str, warehouse: Path = WAREHOUSE_PATH, model: str = ollama.
                 rule = exc.rule if isinstance(exc, ValidationError) else (
                     "query_timeout" if isinstance(exc, QueryTimeout) else "query_error")
                 attempts.append({"sql": sql, "rule": rule, "error": str(exc)})
+                if rule in POLICY_RULES:
+                    return {
+                        "kind": "refusal",
+                        "message": refusal_message(rule),
+                        "sql": "",
+                        "caveats": [],
+                        "model": response.get("model", model),
+                        "attempts": attempts,
+                    }
                 feedback = str(exc)
                 continue
             requested = response.get("caveats", [])
             ids = caveat_ids(question, validated, requested if isinstance(requested, list) else [])
             return {
                 "kind": "query",
-                "message": str(response.get("message", "")),
+                "message": "",
                 "sql": validated,
                 "result": result,
                 "caveats": [{"id": item, "text": CAVEATS[item]} for item in ids],
@@ -127,7 +171,7 @@ def answer(question: str, warehouse: Path = WAREHOUSE_PATH, model: str = ollama.
             }
     return {
         "kind": "error",
-        "message": f"No safe query succeeded after {MAX_RETRIES + 1} attempts.",
+        "message": f"No query succeeded after {MAX_RETRIES + 1} attempts. {PERMITTED}",
         "sql": attempts[-1]["sql"] if attempts else "",
         "caveats": [],
         "model": model,

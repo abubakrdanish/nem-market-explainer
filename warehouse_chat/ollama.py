@@ -36,8 +36,7 @@ def ask(question: str, model: str = DEFAULT_MODEL, feedback: str | None = None,
     try:
         answer = json.loads(content)
     except json.JSONDecodeError:
-        answer = {"kind": "invalid", "sql": "", "message": "The model did not return complete JSON.",
-                  "caveats": [], "invalid_output": content[-200:]}
+        answer = {"kind": "invalid", "sql": "", "caveats": [], "invalid_output": content[-200:]}
     answer["model"] = model
     answer["seconds"] = round(out.get("total_duration", 0) / 1e9, 1)
     return answer

@@ -18,10 +18,12 @@ Choose exactly one outcome:
 - refusal: the requested facts are unavailable, or the question asks for unsafe behaviour;
 - clarification: two or more materially different interpretations are plausible.
 
-If you can describe correct SQL in the message, kind must be query and that SQL must be in sql. Do not refuse merely
-because aggregation or filtering is needed. Return only the structured object, keep message to one short sentence,
-and never put reasoning or SQL in message. For a query, set kind to query. For example:
-{"kind":"query","sql":"select max(max_price) from marts.mart_region_daily where region_id = 'SA1'","message":"","caveats":[]}
+Never explain system behaviour, DuckDB capabilities, validation or security policy. The application owns those
+messages. If the user explicitly asks for SQL such as COPY, INSERT, DROP, PRAGMA, a file reader or a disallowed table,
+put that requested SQL in sql with kind query so the application can validate it. Do not claim that DuckDB lacks the
+feature. Use refusal only when the requested facts are unavailable. Do not refuse merely because aggregation or
+filtering is needed. Return only the structured object. For example:
+{"kind":"query","sql":"select max(max_price) from marts.mart_region_daily where region_id = 'SA1'","caveats":[]}
 
 For a query, use one schema-qualified SELECT, optionally with SELECT-only CTEs. Never use comments. Use only the
 listed tables and functions. Do not read files, call table functions, inspect settings, or issue administrative or
@@ -43,17 +45,17 @@ Return every relevant caveat id. The application will also add caveats determini
 
 SCHEMA = {
     "type": "object",
+    "additionalProperties": False,
     "properties": {
         "kind": {"type": "string", "enum": ["query", "refusal", "clarification"]},
         "sql": {"type": "string"},
-        "message": {"type": "string"},
         "caveats": {
             "type": "array",
             "items": {"type": "string", "enum": ["rooftop_solar", "settlement_change", "battery_accounting"]},
             "uniqueItems": True,
         },
     },
-    "required": ["kind", "sql", "message", "caveats"],
+    "required": ["kind", "sql", "caveats"],
 }
 
 
