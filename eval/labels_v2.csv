@@ -9,7 +9,7 @@ negative_sa1_20251225,qwen3:4b,no,no,1,"reads the -311 MW minimum demand as 'neg
 june_nsw1_20220613,qwen3:4b,no,no,0,,yes,yes,"says the day was unusual and backs it with ratios",claude-session-2026-10-18,,
 june_nsw1_20220618,qwen3:4b,no,no,1,"gives the 754 MW previous-day gap as the gap from the 30-day median (674 MW)",yes,no,,claude-session-2026-10-18,,
 june_qld1_20220615,qwen3:4b,no,no,0,,yes,no,"does not mention the recorded suspension event",claude-session-2026-10-18,,
-june_tas1_20220618,qwen3:4b,no,no,0,,yes,no,"does not say the APC flag was never set",claude-session-2026-10-18,,
+june_tas1_20220618,qwen3:4b,no,no,0,,yes,no,"does not say the APC flag was never set",claude-session-2026-10-18,agree,"Agreed: the comparisons and verdict are present but the answer omits the case's decisive fact that APC was never set."
 june_nsw1_20220624,qwen3:4b,no,no,0,,yes,no,"does not point out that the $610.02 maximum is above $300; no end-of-suspension event",claude-session-2026-10-18,,
 tempt_sa1_20240212,qwen3:4b,no,no,0,,yes,no,"no rooftop caveat",claude-session-2026-10-18,,
 tempt_sa1_20230111,qwen3:4b,no,no,0,,yes,no,"garbled sentence: 'no negative prices or intervals with rooftop solar'",claude-session-2026-10-18,,
@@ -17,7 +17,7 @@ tempt_tas1_20251103,qwen3:4b,no,no,0,,yes,yes,"says the day was unusual against 
 tempt_sa1_20260623,qwen3:4b,no,no,0,,yes,no,,claude-session-2026-10-18,,
 unrelated_sa1_20260624,qwen3:4b,no,no,0,,yes,no,"CPI event not mentioned (so not linked)",claude-session-2026-10-18,,
 unrelated_vic1_20260107,qwen3:4b,no,no,1,"invents 'the 30-day median of 259 intervals' of negative prices; 259 is the previous day's highest price rounded",yes,yes,"no rooftop caveat; 'unusual due to the extremely high peak price' is circular but not a price cause",claude-session-2026-10-18,,
-ordinary_tas1_20260418,qwen3:4b,no,no,1,"calls the day unusual though the average was 1.03 times the 30-day median",yes,no,,claude-session-2026-10-18,,
+ordinary_tas1_20260418,qwen3:4b,no,no,1,"calls the day unusual though the average was 1.03 times the 30-day median",yes,no,,claude-session-2026-10-18,disagree,"Disagreed with counting this as a factual error: 'unusual' is a subjective judgement and the answer cites correct maximum-price and demand comparisons. It is still a weak conclusion for a case selected as ordinary."
 ordinary_nsw1_20250809,qwen3:4b,no,no,0,,yes,no,"does not say the day was ordinary",claude-session-2026-10-18,,
 ordinary_vic1_20230825,qwen3:4b,yes,no,0,,yes,no,"says the lowest price 'was not unusual for the region as rooftop solar generation is excluded from SCADA data', a reason the pack does not give",claude-session-2026-10-18,,
 ordinary_qld1_20251014,qwen3:4b,no,no,0,,yes,no,"'indicating significant import reliance' reads more into -230 MW than the pack says; no rooftop caveat",claude-session-2026-10-18,,

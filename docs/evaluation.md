@@ -78,7 +78,7 @@ Pick a sample of cases, read the answer in `eval/results/qwen3_4b.jsonl` against
 
 | Date checked | Cases checked | Agree with labels | Disagreements |
 |---|---|---|---|
-| | | | |
+| 2026-10-19 | 3 | 3 | 0 |
 
 ## v2: comparison facts, a required verdict and a length limit
 
@@ -179,7 +179,9 @@ Record agreement or disagreement with `eval/labels_v2.csv` in its `owner_check` 
 
 | Date checked | Model | Cases checked | Agree with labels | Disagreements |
 |---|---|---|---|---|
-| | | | | |
+| 2026-10-19 | qwen3:4b | 2 | 1 | 1 |
+
+The disagreement is `ordinary_tas1_20260418`: the existing label counts “unusual” as a factual error. The spot-check treats that wording as a subjective, weakly supported judgement rather than a factual misstatement because every cited comparison is correct.
 
 ## Conclusion
 

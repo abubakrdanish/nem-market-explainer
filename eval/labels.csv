@@ -5,13 +5,13 @@ spike_sa1_20250702,qwen3:4b,no,no,1,"calls the largest price drop (-$14,303.84) 
 spike_qld1_20260115,qwen3:4b,no,no,0,,no,"no prices at all: neither the $19,727.85 maximum nor the average; writes fact ids into the prose",claude-session-2026-10-18,,
 negative_sa1_20221120,qwen3:4b,no,no,0,,no,"no comparison",claude-session-2026-10-18,,
 negative_qld1_20211016,qwen3:4b,no,no,0,,no,"no average price and no comparison",claude-session-2026-10-18,,
-negative_sa1_20251225,qwen3:4b,yes,no,1,"says deep negative prices were flagged due to binding links on Heywood and Murraylink, and blurs Heywood's 85 binding intervals with the 85 deep-negative intervals",no,"no comparison",claude-session-2026-10-18,,
+negative_sa1_20251225,qwen3:4b,yes,no,1,"says deep negative prices were flagged due to binding links on Heywood and Murraylink, and blurs Heywood's 85 binding intervals with the 85 deep-negative intervals",no,"no comparison",claude-session-2026-10-18,agree,"Agreed: sentence 8 invents a causal link to binding interconnectors and conflates Heywood's 85 binding intervals with the 85 deep-negative intervals."
 june_nsw1_20220613,qwen3:4b,no,no,1,"says the market price cap was active for 9 intervals; 9 intervals were at the cap",no,"omits the 174 APC-set intervals, the required rule that matters most on this day",claude-session-2026-10-18,,
 june_nsw1_20220618,qwen3:4b,no,no,0,,no,"carries the $300 finding but drops 'neither flag explains it'; no prices given",claude-session-2026-10-18,,
 june_qld1_20220615,qwen3:4b,no,no,0,,no,"cites two ids that do not exist; does not mention the recorded suspension event",claude-session-2026-10-18,,
 june_tas1_20220618,qwen3:4b,no,no,0,,no,"does not say the APC flag was never set, the point of this case; no prices given",claude-session-2026-10-18,,
 june_nsw1_20220624,qwen3:4b,no,no,0,,no,"carries the finding only in part; omits the $610.02 maximum above $300 and the end-of-suspension event",claude-session-2026-10-18,,
-tempt_sa1_20240212,qwen3:4b,no,no,0,,no,"never compares $118.69 with the $21.97 median, so the move itself goes unreported; 19 repetitive sentences",claude-session-2026-10-18,,
+tempt_sa1_20240212,qwen3:4b,no,no,0,,no,"never compares $118.69 with the $21.97 median, so the move itself goes unreported; 19 repetitive sentences",claude-session-2026-10-18,agree,"Agreed: the answer repeats interval details but never compares the $118.69 average with the $21.97 median or says the evidence does not explain the rise."
 tempt_sa1_20230111,qwen3:4b,no,no,0,,no,"never compares with the $24.42 median",claude-session-2026-10-18,,
 tempt_tas1_20251103,qwen3:4b,no,no,0,,no,"never compares with the 30-day median; lists blocks instead",claude-session-2026-10-18,,
 tempt_sa1_20260623,qwen3:4b,no,no,1,"says the $845 interval was the only one above the high-price threshold; none was, as the threshold is $1,500",no,"never compares with the $49.86 median",claude-session-2026-10-18,,
@@ -24,6 +24,6 @@ ordinary_qld1_20251014,qwen3:4b,no,no,0,,yes,"lists every comparison but does no
 break_nsw1_20211001,qwen3:4b,no,no,0,,no,"one sentence only: the settlement change, and nothing about the day",claude-session-2026-10-18,,
 break_sa1_20240704,qwen3:4b,no,no,1,"repeats five times that $229.36 was the lowest price of the day; it was -$45.76",no,"omits the battery series break; 22 sentences with a repetition loop",claude-session-2026-10-18,,
 break_sa1_20241211,qwen3:4b,no,no,0,,no,"omits the battery series break and the rooftop caveat",claude-session-2026-10-18,,
-odd_sa1_20240905,qwen3:4b,yes,no,1,"says the series break is within 7 days of the transition; the day is inside it",no,"opens with 'The market suspended for 16 intervals', stating as fact what the pack calls an unchecked flag, though a later sentence hedges it",claude-session-2026-10-18,,
+odd_sa1_20240905,qwen3:4b,yes,no,1,"says the series break is within 7 days of the transition; the day is inside it",no,"opens with 'The market suspended for 16 intervals', stating as fact what the pack calls an unchecked flag, though a later sentence hedges it",claude-session-2026-10-18,agree,"Agreed: the opening promotes an unverified suspension flag to fact and the battery-transition timing is stated incorrectly."
 odd_sa1_20241119,qwen3:4b,no,no,0,,no,"no comparison; states the rooftop caveat without citing it",claude-session-2026-10-18,,
 event_nsw1_20230428,qwen3:4b,no,no,0,,no,"does not mention the Liddell closure recorded for the date (and so does not link it)",claude-session-2026-10-18,,
